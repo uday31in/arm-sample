@@ -1,0 +1,30 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "hub"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnet1Name": {
+      "value": "corp"
+    },
+    "subnet1Prefix": {
+      "value": "10.0.0.0/20"
+    },
+    "subnet2Name": {
+      "value": "vpngw"
+    },
+    "subnet2Prefix": {
+      "value": "10.0.255.232/28"
+    },
+	"subnet3Name": {
+      "value": "ergw"
+    },
+    "subnet3Prefix": {
+      "value": "10.0.255.248/28"
+    }
+  }
+}
