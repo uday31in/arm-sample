@@ -18,7 +18,7 @@
     },
     "subnet1Prefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24",
+      "defaultValue": "10.0.1.0/24",
       "metadata": {
         "description": "Subnet 1 Prefix"
       }
@@ -30,41 +30,30 @@
         "description": "Subnet 1 Name"
       }
     },
-    "subnet2Prefix": {
+    "gwSubnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.1.0/24",
+      "defaultValue": "10.0.0.0/27",
       "metadata": {
-        "description": "Subnet 2 Prefix"
+        "description": "Gateway Subnet address prefix"
       }
     },
-    "subnet2Name": {
+    "gwSubnetName": {
       "type": "string",
-      "defaultValue": "Subnet2",
+      "defaultValue": "GatewaySubnet",
+      "allowedValues": [
+        "GatewaySubnet"
+      ],
       "metadata": {
-        "description": "Subnet 2 Name"
+        "description": "GatewaySubnet in Hub VNet"
       }
-    },
-	 "subnet3Prefix": {
-      "type": "string",
-      "defaultValue": "10.0.1.0/24",
-      "metadata": {
-        "description": "Subnet 2 Prefix"
-      }
-    },
-    "subnet3Name": {
-      "type": "string",
-      "defaultValue": "Subnet2",
-      "metadata": {
-        "description": "Subnet 2 Name"
-      }
-    }
+    }    
   },
   "variables": {
     "apiVersion": "2015-06-15"
   },
   "resources": [
     {
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2016-03-30",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
@@ -82,15 +71,9 @@
             }
           },
           {
-            "name": "[parameters('subnet2Name')]",
+            "name": "[parameters('gwSubnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('subnet2Prefix')]"
-            }
-          },
-		   {
-            "name": "[parameters('subnet3Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet3Prefix')]"
+              "addressPrefix": "[parameters('gwSubnetPrefix')]"
             }
           }
         ]
