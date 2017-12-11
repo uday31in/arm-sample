@@ -44,7 +44,7 @@
         "description": "Subnet 2 Name"
       }
     },
-	 "subnet3Prefix": {
+	"subnet3Prefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
@@ -58,7 +58,7 @@
         "description": "Subnet 2 Name"
       }
     },
-	 "subnet4Prefix": {
+	"subnet4Prefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
@@ -72,7 +72,7 @@
         "description": "Subnet 2 Name"
       }
     },
-	 "subnet5Prefix": {
+	"subnet5Prefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
@@ -86,7 +86,7 @@
         "description": "Subnet 2 Name"
       }
     },
-	 "subnet6Prefix": {
+	"subnet6Prefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
@@ -102,7 +102,10 @@
     }
   },
   "variables": {
-    "apiVersion": "2015-06-15"
+    "apiVersion": "2015-06-15",	
+	"webSubnetNSG": "web-subnet-nsg",
+	"appSubnetNSG": "app-subnet-nsg",
+	"dbSubnetNSG": "db-subnet-nsg"
   },
   "resources": [
     {
@@ -110,6 +113,11 @@
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
+	  "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('webSubnetNSG'))]",
+		"[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnetNSG'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('dbSubnetNSG'))]"
+      ],
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -120,7 +128,10 @@
           {
             "name": "[parameters('subnet1Name')]",
             "properties": {
-              "addressPrefix": "[parameters('subnet1Prefix')]"
+              "addressPrefix": "[parameters('subnet1Prefix')]",
+			  "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webSubnetNSG'))]"
+              }
             }
           },
           {
@@ -132,7 +143,10 @@
 		   {
             "name": "[parameters('subnet3Name')]",
             "properties": {
-              "addressPrefix": "[parameters('subnet3Prefix')]"
+              "addressPrefix": "[parameters('subnet3Prefix')]",
+			   "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('appSubnetNSG'))]"
+              }
             }
           },
 		  {
@@ -144,7 +158,10 @@
           {
             "name": "[parameters('subnet5Name')]",
             "properties": {
-              "addressPrefix": "[parameters('subnet5Prefix')]"
+              "addressPrefix": "[parameters('subnet5Prefix')]",
+			   "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('dbSubnetNSG'))]"
+              }
             }
           },
 		   {
@@ -155,6 +172,219 @@
           }
         ]
       }
+    },
+	
+	{
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('webSubnetNSG')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "webSubnetNSG"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "enable_webSubnetNSG",
+            "properties": {
+              "description": "Enable webSubnetNSG",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('subnet1Prefix')]",
+              "destinationAddressPrefix": "[parameters('subnet1Prefix')]",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "enable_rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "enable_ssh_rule",
+            "properties": {
+              "description": "Allow SSH",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 111,
+              "direction": "Inbound"
+            }
+          },       
+          {
+            "name": "deny_AllowVnetInBound_rule",
+            "properties": {
+              "description": "deny_AllowVnetInBound_rule",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Deny",
+              "priority": 4000,
+              "direction": "Inbound"
+            }
+          }
+		]
+	  }
+    },
+	
+	
+	{
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('appSubnetNSG')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "appSubnetNSG"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "enable_dns_rule",
+            "properties": {
+              "description": "Enable appSubnetNSG",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('subnet3Prefix')]",
+              "destinationAddressPrefix": "[parameters('subnet3Prefix')]",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "enable_rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "enable_ssh_rule",
+            "properties": {
+              "description": "Allow SSH",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 111,
+              "direction": "Inbound"
+            }
+          },       
+          {
+            "name": "deny_AllowVnetInBound_rule",
+            "properties": {
+              "description": "deny_AllowVnetInBound_rule",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Deny",
+              "priority": 4000,
+              "direction": "Inbound"
+            }
+          }
+	    ]
+	  }
+    },
+	
+	
+	{
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('dbSubnetNSG')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "dbSubnetNSG"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "enable_dns_rule",
+            "properties": {
+              "description": "Enable dbSubnetNSG",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('subnet5Prefix')]",
+              "destinationAddressPrefix": "[parameters('subnet5Prefix')]",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "enable_rdp_rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "enable_ssh_rule",
+            "properties": {
+              "description": "Allow SSH",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 111,
+              "direction": "Inbound"
+            }
+          },       
+          {
+            "name": "deny_AllowVnetInBound_rule",
+            "properties": {
+              "description": "deny_AllowVnetInBound_rule",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Deny",
+              "priority": 4000,
+              "direction": "Inbound"
+            }
+          }
+		]
+	  }
     }
+		
   ]
 }
