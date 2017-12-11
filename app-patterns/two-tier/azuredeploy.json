@@ -25,6 +25,7 @@
   },
   "variables": {
     
+	"asgaccessgrouprg" : "upstream-ne-prod",
     "storageAccountType": "Standard_LRS",
     "numberOfInstances": 2,    
 	"vmSize" : "Standard_DS1",
@@ -34,6 +35,7 @@
 	"tier1lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier1NamePrefix'),'-ilb')]",
 	"tier1lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier1NamePrefix'),'-ilb'))]",
 	"tier1asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-asg'))]",
+	"tier1asgAllowedToAccessID": "[resourceId(variables('asgaccessgrouprg'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-allowed-toaccess-asg'))]",
 	"tier1nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier1NamePrefix'),'-app-nsg'))]",
 	
 	"tier2NamePrefix": "app",
@@ -42,6 +44,7 @@
 	"tier2lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier2NamePrefix'),'-ilb')]",
 	"tier2lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier2NamePrefix'),'-ilb'))]",
 	"tier2asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier2NamePrefix'),'-asg'))]",
+	"tier2asgAllowedToAccessID": "[resourceId(variables('asgaccessgrouprg'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tier2NamePrefix'),'-allowed-toaccess-asg'))]",
 	"tier2nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier2NamePrefix'),'-app-nsg'))]",
 		
 	"tier3NamePrefix": "db",
@@ -102,6 +105,33 @@
 	},
 	
 	{
+		"apiVersion": "2017-05-10",
+		"name": "[concat(variables('tier1NamePrefix'), '-allowed-toaccess-asg')]",
+		"type": "Microsoft.Resources/deployments",
+		"resourceGroup": "[variables('asgaccessgrouprg')]",            
+		"properties": {
+			"mode": "Incremental",
+			"template": {
+				"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+				"contentVersion": "1.0.0.0",
+				"parameters": {},
+				"variables": {},
+				"resources": [
+					{
+					  "name": "[concat(variables('tier1NamePrefix'), '-allowed-toaccess-asg')]",
+					  "type": "Microsoft.Network/applicationSecurityGroups",
+					  "apiVersion": "2017-10-01",
+					  "location": "[resourceGroup().location]",						  
+					  "tags": {},
+					  "properties": {}
+					}
+				]
+			},
+			"parameters": {}
+		}
+    },
+	
+	{
 	  "name": "[concat(variables('tier2NamePrefix'), '-asg')]",
 	  "type": "Microsoft.Network/applicationSecurityGroups",
 	  "apiVersion": "2017-10-01",
@@ -109,6 +139,33 @@
 	  "tags": {},
 	  "properties": {}
 	},
+	
+	{
+		"apiVersion": "2017-05-10",
+		"name": "[concat(variables('tier2NamePrefix'), '-allowed-toaccess-asg')]",
+		"type": "Microsoft.Resources/deployments",
+		"resourceGroup": "[variables('asgaccessgrouprg')]",            
+		"properties": {
+			"mode": "Incremental",
+			"template": {
+				"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+				"contentVersion": "1.0.0.0",
+				"parameters": {},
+				"variables": {},
+				"resources": [
+					{
+					  "name": "[concat(variables('tier2NamePrefix'), '-allowed-toaccess-asg')]",
+					  "type": "Microsoft.Network/applicationSecurityGroups",
+					  "apiVersion": "2017-10-01",
+					  "location": "[resourceGroup().location]",						  
+					  "tags": {},
+					  "properties": {}
+					}
+				]
+			},
+			"parameters": {}
+		}
+    },
 	
 	{
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -157,6 +214,28 @@
 			  ],
               "access": "Allow",
               "priority": 101,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "[concat('Allow_to_access_traffic_in_asg',variables('asgaccessgrouprg'), 'to' , variables('tier1NamePrefix') )]",
+            "properties": {
+              "description": "[concat('Allow_to_access_traffic_in_asg',variables('asgaccessgrouprg'), 'to' , variables('tier1NamePrefix') )]",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+			  "sourceApplicationSecurityGroups" : [
+				{
+					"id" : "[variables('tier1asgAllowedToAccessID')]"
+				}
+			  ],
+              "destinationApplicationSecurityGroups": [
+				{
+					"id": "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier1NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "access": "Allow",
+              "priority": 102,
               "direction": "Inbound"
             }
           },
@@ -279,6 +358,28 @@
 			  ],
               "access": "Allow",
               "priority": 101,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "[concat('Allow_to_access_traffic_in_asg',variables('asgaccessgrouprg'), 'to' , variables('tier2NamePrefix') )]",
+            "properties": {
+              "description": "[concat('Allow_to_access_traffic_in_asg',variables('asgaccessgrouprg'), 'to' , variables('tier2NamePrefix') )]",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+			  "sourceApplicationSecurityGroups" : [
+				{
+					"id" : "[variables('tier2asgAllowedToAccessID')]"
+				}
+			  ],
+              "destinationApplicationSecurityGroups": [
+				{
+					"id": "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier2NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "access": "Allow",
+              "priority": 102,
               "direction": "Inbound"
             }
           },
