@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-	 "operatingSystem": {
+	"operatingSystem": {
       "type": "string",
       "defaultValue": "Ubuntu",
       "metadata": {
@@ -20,16 +20,33 @@
       "metadata": {
         "description": "String passed down to the Virtual Machine."
       }
+	},
+	"tier1NamePrefix": {
+      "type": "string",
+      "defaultValue": "web",
+      "metadata": {
+        "description": "tier1 Name Prefix"
+		}
+    },
+	"tier2NamePrefix": {
+      "type": "string",
+      "defaultValue": "app",
+      "metadata": {
+        "description": "tier1 Name Prefix"
+      }
     }
    
   },
   "variables": {
     
 	"asgaccessgrouprg" : "upstream-ne-prod",
+	
+	"asgRemoteIdtoGainAccess": "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/applicationSecurityGroups/upstream-app1app-allowed-toaccess-asg",
+	
     "storageAccountType": "Standard_LRS",
-    "numberOfInstances": 2,    
+    "numberOfInstances": 3,    
 	"vmSize" : "Standard_DS1",
-	"tier1NamePrefix": "web",
+	"tier1NamePrefix": "[concat(resourceGroup().name, parameters('tier1NamePrefix') )]",
 	"tier1VMSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-web",
 	"tier1IlbSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-web-ilb",
 	"tier1lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier1NamePrefix'),'-ilb')]",
@@ -38,7 +55,7 @@
 	"tier1asgAllowedToAccessID": "[resourceId(variables('asgaccessgrouprg'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-allowed-toaccess-asg'))]",
 	"tier1nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier1NamePrefix'),'-app-nsg'))]",
 	
-	"tier2NamePrefix": "app",
+	"tier2NamePrefix": "[concat(resourceGroup().name, parameters('tier2NamePrefix'))]",
 	"tier2VMSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-app",
 	"tier2IlbSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-app-ilb",
 	"tier2lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier2NamePrefix'),'-ilb')]",
@@ -173,7 +190,8 @@
       "apiVersion": "2017-10-01",
       "location": "[resourceGroup().location]",
 	  "dependsOn": [
-        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier1NamePrefix'),'-asg')]"
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier1NamePrefix'),'-asg')]",
+		"[concat('Microsoft.Resources/deployments/' , variables('tier1NamePrefix'), '-allowed-toaccess-asg')]"
       ],      
       "properties": {
         "securityRules": [
@@ -313,7 +331,8 @@
       "apiVersion": "2017-10-01",
       "location": "[resourceGroup().location]",
 	  "dependsOn": [
-        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier2NamePrefix'),'-asg')]"
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier2NamePrefix'),'-asg')]",
+		"[concat('Microsoft.Resources/deployments/' , variables('tier2NamePrefix'), '-allowed-toaccess-asg')]"
       ],      
       "properties": {
         "securityRules": [
@@ -475,6 +494,9 @@
 			  "applicationSecurityGroups" : [
 		        {
 					"id": "[variables('tier1asgID')]" 
+				},				
+				{
+					"id": "[variables('asgRemoteIdtoGainAccess')]"
 				}
 			  ]
             }
@@ -528,9 +550,7 @@
 		}
       }
     },
-	
-	
-	
+		
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/loadBalancers",
@@ -588,8 +608,7 @@
         ]
       }
     },
-	
-	
+
 	{
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/loadBalancers",
