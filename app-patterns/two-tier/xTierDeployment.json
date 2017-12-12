@@ -70,8 +70,6 @@
 		
 		"vnetID": "[resourceId(variables('subscriptionId'), variables('networkresourcegroupname'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
 		
-		"asgRemoteIdtoGainAccess": "[concat(variables('vnetID'), crosoft.Network/applicationSecurityGroups/upstream-app1app-allowed-toaccess-asg",
-		
 		"storageAccountType": "Standard_LRS",
 		"numberOfInstances": 3,    
 		"vmSize" : "Standard_DS1",
@@ -84,6 +82,8 @@
 		"tierXlbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tierXNamePrefix'),'-ilb'))]",
 		"tierXasgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-asg'))]",		
 		"tierXnsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tierXNamePrefix'),'-app-nsg'))]",
+		
+		"tierXasgAllowedToAccessID": "[resourceId(variables('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-allowed-toaccess-asg'))]",
 		
 		"operatingSystemValues": {
 		  "Server2012R2": {
@@ -129,13 +129,40 @@
 		},
 		
 		{
+			"apiVersion": "2017-05-10",
+			"name": "[concat(variables('tierXNamePrefix'), '-allowed-toaccess-asg')]",
+			"type": "Microsoft.Resources/deployments",
+			"resourceGroup": "[variables('networkresourcegroupname')]",            
+			"properties": {
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {},
+					"variables": {},
+					"resources": [
+						{
+						  "name": "[concat(variables('tierXNamePrefix'), '-allowed-toaccess-asg')]",
+						  "type": "Microsoft.Network/applicationSecurityGroups",
+						  "apiVersion": "2017-10-01",
+						  "location": "[resourceGroup().location]",						  
+						  "tags": {},
+						  "properties": {}
+						}
+					]
+				},
+				"parameters": {}
+			}
+		},
+		
+		{
 			  "type": "Microsoft.Network/networkSecurityGroups",
 			  "name": "[concat(variables('tierXNamePrefix'), '-app-nsg')]",
 			  "apiVersion": "2017-10-01",
 			  "location": "[resourceGroup().location]",
 			  "dependsOn": [
-				"[concat('Microsoft.Network/applicationSecurityGroups/', variables('tierXNamePrefix'),'-asg')]",
-				"[concat('Microsoft.Resources/deployments/' , variables('tierXNamePrefix'), '-allowed-toaccess-asg')]"
+				"[concat('Microsoft.Network/applicationSecurityGroups/', variables('tierXNamePrefix'),'-asg')]"	, 
+				"[concat('Microsoft.Resources/deployments/',variables('tierXNamePrefix'), '-allowed-toaccess-asg')]"				
 			  ],      
 			  "properties": {
 				"securityRules": [
