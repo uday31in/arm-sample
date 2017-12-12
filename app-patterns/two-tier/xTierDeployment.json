@@ -82,8 +82,7 @@
 		
 		"tierXlbname": "[concat('Microsoft.Network/loadBalancers/', variables('tierXNamePrefix'),'-ilb')]",
 		"tierXlbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tierXNamePrefix'),'-ilb'))]",
-		"tierXasgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-asg'))]",
-		"tierXasgAllowedToAccessID": "[resourceId(variables('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-allowed-toaccess-asg'))]",
+		"tierXasgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-asg'))]",		
 		"tierXnsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tierXNamePrefix'),'-app-nsg'))]",
 		
 		"operatingSystemValues": {
