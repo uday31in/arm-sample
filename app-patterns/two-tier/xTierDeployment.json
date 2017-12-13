@@ -62,28 +62,23 @@
 	},
 	"variables": {
 		"subscriptionId" : "[subscription().subscriptionId]",	
-		"networkresourcegroupname" : "[parameters('networkresourcegroupname')]",
-		"virtualNetworkName" : "[parameters('virtualNetworkName')]",
-
-		"tierXsubnetName" : "[parameters('tierXsubnetName')]",
-		"tierXsubnetNameIlb" : "[parameters('tierXsubnetNameIlb')]",
 		
-		"vnetID": "[resourceId(variables('subscriptionId'), variables('networkresourcegroupname'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+		"vnetID": "[resourceId(variables('subscriptionId'), parameters('networkresourcegroupname'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
 		
 		"storageAccountType": "Standard_LRS",
-		"numberOfInstances": 3,    
-		"vmSize" : "Standard_DS1",
+		"numberOfInstances": 2,    
+		"vmSize" : "Standard_DS1_v2",
 		
 		"tierXNamePrefix": "[concat(resourceGroup().name, parameters('tierXNamePrefix') )]",
-		"tierXVMSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tierXsubnetName'))]",
-		"tierXIlbSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tierXsubnetNameIlb'))]",
+		"tierXVMSubnetRef":  "[concat(variables('vnetID'), '/subnets/', parameters('tierXsubnetName'))]",
+		"tierXIlbSubnetRef":  "[concat(variables('vnetID'), '/subnets/', parameters('tierXsubnetNameIlb'))]",
 		
 		"tierXlbname": "[concat('Microsoft.Network/loadBalancers/', variables('tierXNamePrefix'),'-ilb')]",
 		"tierXlbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tierXNamePrefix'),'-ilb'))]",
 		"tierXasgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-asg'))]",		
 		"tierXnsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tierXNamePrefix'),'-app-nsg'))]",
 		
-		"tierXasgAllowedToAccessID": "[resourceId(variables('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-allowed-toaccess-asg'))]",
+		"tierXasgAllowedToAccessID": "[resourceId(parameters('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tierXNamePrefix'),'-allowed-toaccess-asg'))]",
 		
 		"operatingSystemValues": {
 		  "Server2012R2": {
@@ -132,7 +127,7 @@
 			"apiVersion": "2017-05-10",
 			"name": "[concat(variables('tierXNamePrefix'), '-allowed-toaccess-asg')]",
 			"type": "Microsoft.Resources/deployments",
-			"resourceGroup": "[variables('networkresourcegroupname')]",            
+			"resourceGroup": "[parameters('networkresourcegroupname')]",            
 			"properties": {
 				"mode": "Incremental",
 				"template": {
@@ -211,15 +206,15 @@
 					}
 				  },
 				  {
-					"name": "[concat('Allow_to_access_traffic_in_asg',variables('networkresourcegroupname'), 'to' , variables('tierXNamePrefix') )]",
+					"name": "[concat('Allow_to_access_traffic_in_asg',parameters('networkresourcegroupname'), 'to' , variables('tierXNamePrefix') )]",
 					"properties": {
-					  "description": "[concat('Allow_to_access_traffic_in_asg',variables('networkresourcegroupname'), 'to' , variables('tierXNamePrefix') )]",
+					  "description": "[concat('Allow_to_access_traffic_in_asg',parameters('networkresourcegroupname'), 'to' , variables('tierXNamePrefix') )]",
 					  "protocol": "*",
 					  "sourcePortRange": "*",
 					  "destinationPortRange": "*",
 					  "sourceApplicationSecurityGroups" : [
 						{
-							"id" : "[variables('tier2asgAllowedToAccessID')]"
+							"id" : "[variables('tierXasgAllowedToAccessID')]"
 						}
 					  ],
 					  "destinationApplicationSecurityGroups": [
@@ -313,23 +308,23 @@
 				"properties": {
 				  "privateIPAllocationMethod": "Dynamic",
 				  "subnet": {
-					"id": "[variables('tier2VMSubnetRef')]"
+					"id": "[variables('tierXVMSubnetRef')]"
 				  },
 				  "loadBalancerBackendAddressPools": [
 					{
-					  "id": "[concat(variables('tier2lbID'), '/backendAddressPools/BackendPool1')]"
+					  "id": "[concat(variables('tierXlbID'), '/backendAddressPools/BackendPool1')]"
 					}
 				  ],
 				  "applicationSecurityGroups" : [
 					{
-						"id": "[variables('tier2asgID')]" 
+						"id": "[variables('tierXasgID')]" 
 					}
 				  ]
 				}
 			  }
 			],
 			"networkSecurityGroup": {
-				"id": "[variables('tier2nsgID')]"
+				"id": "[variables('tierXnsgID')]"
 			}
 		  }
 		},
@@ -343,7 +338,7 @@
 			  {
 				"properties": {
 				  "subnet": {
-					"id": "[variables('tier2IlbSubnetRef')]"
+					"id": "[variables('tierXIlbSubnetRef')]"
 				  }
 				  
 				},
@@ -359,15 +354,15 @@
 			  {
 				"properties": {
 				  "frontendIPConfiguration": {
-					"id": "[concat( variables('tier2lbID'),'/frontendIpConfigurations/LoadBalancerFrontend')]"
+					"id": "[concat( variables('tierXlbID'),'/frontendIpConfigurations/LoadBalancerFrontend')]"
 					
 				  },
 				  "backendAddressPool": {
-					"id": "[concat( variables('tier2lbID'), '/backendAddressPools/BackendPool1')]"
+					"id": "[concat( variables('tierXlbID'), '/backendAddressPools/BackendPool1')]"
 					
 				  },
 				  "probe": {
-					"id": "[concat(variables('tier2lbID'), '/probes/lbprobe')]"                
+					"id": "[concat(variables('tierXlbID'), '/probes/lbprobe')]"                
 				  },
 				  "protocol": "Tcp",
 				  "frontendPort": 80,
