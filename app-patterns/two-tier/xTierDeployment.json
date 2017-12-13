@@ -4,7 +4,7 @@
 	"parameters": {
 		"operatingSystem": {
 		  "type": "string",
-		  "defaultValue": "Ubuntu",
+		  "defaultValue": "Server2016",
 		  "metadata": {
 			"description": "Operating System of the Server"
 		  },
@@ -30,7 +30,7 @@
 		},
 		"numberOfInstances": {
 		  "type": "int",
-		  "defaultValue": "2",
+		  "defaultValue": 2,
 		  "metadata": {
 			"description": "numberOfInstances"
 		  }
@@ -423,11 +423,9 @@
 			"osProfile": {
 			  "computerName": "[concat(variables('tierXNamePrefix'),'vm',copyIndex(1))]",
 			  "adminUsername": "[variables('adminUsername')]",          
-			  "adminPassword": "[variables('adminPassword')]",
-			  "customData": "[base64(parameters('customData'))]",
-			  "linuxConfiguration": {
-				"disablePasswordAuthentication": "false"
-			  }
+			  "adminPassword": "[variables('adminPassword')]"
+			  
+			  
 			},
 			"networkProfile": {
 			  "networkInterfaces": [
