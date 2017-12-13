@@ -28,7 +28,13 @@
 			"description": "tier1 Name Prefix"
 			}
 		},
-		
+		"numberOfInstances": {
+		  "type": "int",
+		  "defaultValue": "2",
+		  "metadata": {
+			"description": "numberOfInstances"
+		  }
+		},
 		"networkresourcegroupname": {
 		  "type": "string",
 		  "defaultValue": "upstream-ne-prod",
@@ -66,7 +72,7 @@
 		"vnetID": "[resourceId(variables('subscriptionId'), parameters('networkresourcegroupname'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
 		
 		"storageAccountType": "Standard_LRS",
-		"numberOfInstances": 2,    
+		"numberOfInstances": "[parameters('numberOfInstances')]",    
 		"vmSize" : "Standard_DS1_v2",
 		
 		"tierXNamePrefix": "[concat(resourceGroup().name, parameters('tierXNamePrefix') )]",

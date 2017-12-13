@@ -76,7 +76,21 @@
       "metadata": {
         "description": "tier2subnetNameIlb"
       }
-    }
+    },
+	"tier1numberOfInstances": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "tier1numberOfInstances"
+      }
+    },
+	"tier2numberOfInstances": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "tier2numberOfInstances"
+      }
+    }	
    
   },
   "variables": {
@@ -153,6 +167,11 @@
 				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/app-patterns/two-tier/xTierDeployment.json"
 			},
 			"parameters": {
+			
+			
+			    "numberOfInstances":{
+					"value": "[parameters('tier1numberOfInstances')]"
+				},
 				"operatingSystem":{
 					"value": "[parameters('operatingSystem')]"
 				},
@@ -188,6 +207,9 @@
 				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/app-patterns/two-tier/xTierDeployment.json"
 			},
 			"parameters": {
+				"numberOfInstances":{
+					"value": "[parameters('tier2numberOfInstances')]"
+				},
 				"operatingSystem":{
 					"value": "[parameters('operatingSystem')]"
 				},
