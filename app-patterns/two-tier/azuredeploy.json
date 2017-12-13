@@ -94,66 +94,7 @@
    
   },
   "variables": {
-    
-	"subscriptionId" : "[subscription().subscriptionId]",
-	
-	"networkresourcegroupname" : "[parameters('networkresourcegroupname')]",
-	"virtualNetworkName" : "[parameters('virtualNetworkName')]",
-
-	"tier1subnetName" : "[parameters('tier1subnetName')]",
-	"tier1subnetNameIlb" : "[parameters('tier1subnetNameIlb')]",
-	"tier2subnetName" : "[parameters('tier2subnetName')]",
-	"tier2subnetNameIlb" : "[parameters('tier2subnetNameIlb')]",
-	
-	"vnetID": "[resourceId(variables('subscriptionId'), variables('networkresourcegroupname'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-	
-	"asgRemoteIdtoGainAccess": "[concat(variables('vnetID'), crosoft.Network/applicationSecurityGroups/upstream-app1app-allowed-toaccess-asg",
-	
-    "storageAccountType": "Standard_LRS",
-    "numberOfInstances": 3,    
-	"vmSize" : "Standard_DS1",
-	
-	"tier1NamePrefix": "[concat(resourceGroup().name, parameters('tier1NamePrefix') )]",
-	"tier1VMSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tier1subnetName'))]",
-	"tier1IlbSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tier1subnetNameIlb'))]",
-	
-	"tier1lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier1NamePrefix'),'-ilb')]",
-	"tier1lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier1NamePrefix'),'-ilb'))]",
-	"tier1asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-asg'))]",
-	"tier1asgAllowedToAccessID": "[resourceId(variables('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-allowed-toaccess-asg'))]",
-	"tier1nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier1NamePrefix'),'-app-nsg'))]",
-	
-	"tier2NamePrefix": "[concat(resourceGroup().name, parameters('tier2NamePrefix'))]",
-	"tier2VMSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tier2subnetName'))]",
-	"tier2IlbSubnetRef":  "[concat(variables('vnetID'), '/subnets/', variables('tier2subnetNameIlb'))]",
-	
-	"tier2lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier2NamePrefix'),'-ilb')]",
-	"tier2lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier2NamePrefix'),'-ilb'))]",
-	"tier2asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier2NamePrefix'),'-asg'))]",
-	"tier2asgAllowedToAccessID": "[resourceId(variables('networkresourcegroupname'), 'Microsoft.Network/applicationSecurityGroups',concat(variables('tier2NamePrefix'),'-allowed-toaccess-asg'))]",
-	"tier2nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier2NamePrefix'),'-app-nsg'))]",
-		
-	"tier3NamePrefix": "db",
-	"operatingSystemValues": {
-      "Server2012R2": {
-        "PublisherValue": "MicrosoftWindowsServer",
-        "OfferValue": "WindowsServer",
-        "SkuValue": "2012-R2-Datacenter"
-      },
-      "Server2016": {
-        "PublisherValue": "MicrosoftWindowsServer",
-        "OfferValue": "WindowsServer",
-        "SkuValue": "2016-Datacenter"
-      },
-	  "Ubuntu": {
-		  "PublisherValue": "Canonical",
-		  "OfferValue": "UbuntuServer",
-		  "SkuValue": "16.04.0-LTS",
-		  "version": "latest"
-	  }
-    },
-	"adminUsername": "uday",
-	"adminPassword": "!!123abc!!123abc"
+   
   },
   "resources": [
    
