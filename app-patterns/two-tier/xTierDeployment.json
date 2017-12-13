@@ -417,14 +417,13 @@
 				"managedDisk": {
 				  "storageAccountType": "Premium_LRS"
 				},
-				"caching": "ReadWrite"
+				"caching": "ReadWrite"	
 			  }
 			},
 			"osProfile": {
 			  "computerName": "[concat(variables('tierXNamePrefix'),'vm',copyIndex(1))]",
 			  "adminUsername": "[variables('adminUsername')]",          
 			  "adminPassword": "[variables('adminPassword')]"
-			  
 			  
 			},
 			"networkProfile": {

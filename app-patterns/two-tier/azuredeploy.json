@@ -100,7 +100,7 @@
    
    {
 		"apiVersion": "2017-05-10",
-		"name": "[concat(variables('tier1NamePrefix'), '-deployment')]",
+		"name": "[concat(parameters('tier1NamePrefix'), '-deployment')]",
 		"type": "Microsoft.Resources/deployments",		
 		"properties": {
 			"mode": "Incremental",
@@ -174,7 +174,7 @@
 				}
 			}
 		}
-    },
+    }
    
    	
 	
