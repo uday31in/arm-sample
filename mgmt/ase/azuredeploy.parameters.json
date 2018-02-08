@@ -1,0 +1,24 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aseName": {
+            "value": "upstream-ase"
+        },
+        "aseLocation": {
+            "value": "West Central US"
+        },
+        "existingVnetResourceId": {
+            "value": "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/spoke-vnet/providers/Microsoft.Network/virtualNetworks/spoke-wcus-prod"
+        },
+        "subnetName": {
+            "value": "wcus-prod-ase"
+        },
+        "internalLoadBalancingMode": {
+            "value": 3
+        },
+        "dnsSuffix": {
+            "value": "ase.upstream.local"
+        }
+    }
+}
