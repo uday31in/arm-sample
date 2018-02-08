@@ -1,0 +1,32 @@
+# Creating Hub
+
+rgname="hub-networking"
+location="westcentralus"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/hub/azuredeploy.json --parameters /data/mgmt/networking/hub/azuredeploy.parameters.json
+
+
+# Creating OMS Workspace - to do (do not have AAD admin right to create SPN)
+rgname="oms-workspace"
+location="westcentralus"
+
+# Creating Spoke VNet
+
+az account set --subscription "BP Service (Spoke)"
+rgname="spoke-networking"
+location="westcentralus"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json
+
+#az group delete --name $rgname --no-wait --yes
+
+
+# Creating vNet Peering
+
+
+#creating ase
+az account set --subscription "BP Service (Spoke)"
+rgname="spoke-networking"
+location="westcentralus"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json

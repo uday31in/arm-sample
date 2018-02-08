@@ -3,20 +3,20 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
-      "value": "ne-prod"
+      "value": "spoke-wcus-prod"
     },
     "vnetAddressPrefix": {
       "value": "10.1.0.0/16"
     },
 	
     "subnet1Name": {
-      "value": "ne-prod-web"
+      "value": "wcus-prod-web"
     },
     "subnet1Prefix": {
       "value": "10.1.16.0/20"
     },
     "subnet2Name": {
-      "value": "ne-prod-web-ilb"
+      "value": "wcus-prod-web-ilb"
     },
     "subnet2Prefix": {
       "value": "10.1.244.0/24"
@@ -24,13 +24,13 @@
 	
 	
 	"subnet3Name": {
-      "value": "ne-prod-app"
+      "value": "wcus-prod-app"
     },
     "subnet3Prefix": {
       "value": "10.1.32.0/20"
     },
     "subnet4Name": {
-      "value": "ne-prod-app-ilb"
+      "value": "wcus-prod-app-ilb"
     },
     "subnet4Prefix": {
       "value": "10.1.248.0/24"
@@ -38,16 +38,25 @@
 	
 	
 	"subnet5Name": {
-      "value": "ne-prod-db"
+      "value": "wcus-prod-db"
     },
     "subnet5Prefix": {
       "value": "10.1.48.0/20"
     },
     "subnet6Name": {
-      "value": "ne-prod-db-ilb"
+      "value": "wcus-prod-db-ilb"
     },
     "subnet6Prefix": {
       "value": "10.1.252.0/24"
+    },
+	
+	
+    "aseSubnetName": {
+      "value": "wcus-prod-ase"
+    },
+    "aseSubnetPrefix": {
+      "value": "10.1.253.0/24"
     }
+	
   }
 }

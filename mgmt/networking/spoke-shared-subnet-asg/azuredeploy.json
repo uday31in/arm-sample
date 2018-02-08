@@ -16,6 +16,13 @@
         "description": "Address prefix"
       }
     },
+    "DNSServerAddress": {
+      "type": "array",
+      "defaultValue": ["10.0.1.4"],
+      "metadata": {
+        "description": "Subnet 1 Prefix"
+      }
+    },
     "subnet1Prefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
@@ -99,7 +106,22 @@
       "metadata": {
         "description": "Subnet 2 Name"
       }
-    }
+    },
+
+	 "aseSubnetName": {
+      "type": "string",
+      "defaultValue": "Subnet2",
+      "metadata": {
+        "description": "Subnet 2 Name"
+      }
+    },
+    "aseSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Subnet 2 Prefix"
+      }
+    },
   },
   "variables": {
     "apiVersion": "2015-06-15",	
@@ -124,12 +146,15 @@
             "[parameters('vnetAddressPrefix')]"
           ]
         },
+        "dhcpOptions": {
+          "dnsServers":  "[parameters('DNSServerAddress')]"
+        },
         "subnets": [
           {
             "name": "[parameters('subnet1Name')]",
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]",
-			  "networkSecurityGroup": {
+			        "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('webSubnetNSG'))]"
               }
             }
@@ -140,16 +165,16 @@
               "addressPrefix": "[parameters('subnet2Prefix')]"
             }
           },
-		   {
-            "name": "[parameters('subnet3Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet3Prefix')]",
-			   "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('appSubnetNSG'))]"
-              }
-            }
+          {
+                "name": "[parameters('subnet3Name')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnet3Prefix')]",
+                  "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('appSubnetNSG'))]"
+                  }
+                }
           },
-		  {
+          {
             "name": "[parameters('subnet4Name')]",
             "properties": {
               "addressPrefix": "[parameters('subnet4Prefix')]"
@@ -164,12 +189,19 @@
               }
             }
           },
-		   {
+		      {
             "name": "[parameters('subnet6Name')]",
             "properties": {
               "addressPrefix": "[parameters('subnet6Prefix')]"
             }
+          },
+		      {
+            "name": "[parameters('aseSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('aseSubnetPrefix')]"
+            }
           }
+		  
         ]
       }
     },

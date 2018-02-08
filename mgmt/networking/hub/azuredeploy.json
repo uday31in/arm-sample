@@ -23,6 +23,13 @@
         "description": "Subnet 1 Prefix"
       }
     },
+	  "DNSServerAddress": {
+      "type": "array",
+      "defaultValue": ["10.0.1.4"],
+      "metadata": {
+        "description": "Subnet 1 Prefix"
+      }
+    },
     "subnet1Name": {
       "type": "string",
       "defaultValue": "Subnet1",
@@ -63,11 +70,16 @@
             "[parameters('vnetAddressPrefix')]"
           ]
         },
+        "dhcpOptions": {
+          "dnsServers":  "[parameters('DNSServerAddress')]"
+        },
+
         "subnets": [
           {
             "name": "[parameters('subnet1Name')]",
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]"
+
             }
           },
           {
