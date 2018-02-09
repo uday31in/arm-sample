@@ -1,0 +1,148 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vNet1Name": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet1id": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet1ResourceGroup": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet1subscriptionId": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet2id": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet2Name": {
+            "type": "string",
+            "defaultValue": "vNet2",
+            "metadata": {
+                "description": "Name for vNet 2"
+            }
+        },
+        "vNet2ResourceGroup": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        },
+        "vNet2subscriptionId": {
+            "type":"string",
+            "defaultValue": "vNet1",
+            "metadata": {
+                "description": "Name for vNet 1"
+            }
+        }
+    },
+    "variables": {
+        "vNet1": {
+            "addressSpacePrefix": "10.0.0.0/24",
+            "subnetName": "subnet1",
+            "subnetPrefix": "10.0.0.0/24"
+        },
+        "vNet2": {
+            "addressSpacePrefix": "192.168.0.0/24",
+            "subnetName": "subnet1",
+            "subnetPrefix": "192.168.0.0/24"
+        },
+        "vNet1tovNet2PeeringName": "[concat(parameters('vNet1Name'), '-', parameters('vNet2Name'))]",
+        "vNet2tovNet1PeeringName": "[concat(parameters('vNet2Name'), '-', parameters('vNet1Name'))]"
+    },
+    "resources": [
+            {
+
+                "apiVersion": "2017-05-10",
+                "name": "spoketohub",
+                "type": "Microsoft.Resources/deployments",
+                "resourceGroup": "[parameters('vNet2ResourceGroup')]",
+                "subscriptionId": "[parameters('vNet2subscriptionId')]",
+                "properties": {
+                    "mode": "Incremental",
+                    "template": {
+                        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {},
+                        "variables": {},
+                        "resources": [
+                            {
+                                "apiVersion": "2016-06-01",
+                                "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                                "name": "[concat(parameters('vNet2Name'), '/',variables('vNet2tovNet1PeeringName'))]",                
+                                "location": "[resourceGroup().location]",
+                                "properties": {
+                                    "allowVirtualNetworkAccess": "true",
+                                    "allowForwardedTraffic": "false",
+                                    "allowGatewayTransit": "false",
+                                    "useRemoteGateways": "false",
+                                    "remoteVirtualNetwork": {
+                                        "id": "[parameters('vNet1id')]"
+                                    }
+                                }
+                            }
+                        ]
+
+                    }
+                }
+            },
+            {
+                "apiVersion": "2017-05-10",
+                "name": "hubtospoke",
+                "type": "Microsoft.Resources/deployments",
+                "resourceGroup": "[parameters('vNet1ResourceGroup')]",
+                "subscriptionId": "[parameters('vNet1subscriptionId')]",
+                "properties": {
+                    "mode": "Incremental",
+                    "template": {
+                        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {},
+                        "variables": {},
+                        "resources": [
+                            {
+                                "apiVersion": "2016-06-01",
+                                "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                                "name": "[concat(parameters('vNet1Name'), '/',variables('vNet1tovNet2PeeringName'))]",                                
+                                "location": "[resourceGroup().location]",                
+                                "properties": {
+                                    "allowVirtualNetworkAccess": "true",
+                                    "allowForwardedTraffic": "false",
+                                    "allowGatewayTransit": "false",
+                                    "useRemoteGateways": "false",
+                                    "remoteVirtualNetwork": {
+                                        "id": "[parameters('vNet2id')]"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        
+    ]
+    
+}
