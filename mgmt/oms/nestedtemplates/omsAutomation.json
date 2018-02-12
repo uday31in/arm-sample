@@ -103,7 +103,7 @@
                 "Id": ""
             }
         },
-        "scriptUri": "[uri(deployment().properties.templateLink, '/scripts/Automated-IaaS-Backup.ps1')]",
+        "scriptUri": "[uri(deployment().properties.templateLink.uri, '/scripts/Automated-IaaS-Backup.ps1')]",
         "azureSubscriptionId": "AzureSubscriptionId",
         "omsWorkspaceId": "OMSWorkspaceId",
         "omsWorkspaceKey": "OMSWorkspacekey",
