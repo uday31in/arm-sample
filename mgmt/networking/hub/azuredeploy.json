@@ -13,7 +13,7 @@
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
-        "description": "Address prefix"
+        "description": "VNet address prefix"
       }
     },
     "subnet1Prefix": {
