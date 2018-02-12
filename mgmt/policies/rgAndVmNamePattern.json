@@ -1,0 +1,37 @@
+{
+    "properties": {
+        "displayName": "Name pattern with like condition.",
+        "description": "Enforce a naming pattern on resources with the like condition.",
+        "mode": "all",
+        "parameters": {
+            "namePattern": {
+                "type": "String",
+                "metadata": {
+                    "description": "Pattern to use for names. Can include wildcard (*).",
+                    "strongType": "namePattern"
+                }
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Compute/virtualMachines"
+                    },
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+                    },
+                    {
+                        "field": "name",
+                        "like": "[parameters('namePattern')]"
+                    }
+                ]
+            },
+                "then": {
+                    "effect": "deny"
+                }
+            }
+        }
+    }
