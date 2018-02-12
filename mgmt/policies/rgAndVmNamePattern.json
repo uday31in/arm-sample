@@ -14,7 +14,7 @@
         },
         "policyRule": {
             "if": {
-                "allOf": [
+                "anyOf": [
                     {
                         "field": "type",
                         "equals": "Microsoft.Compute/virtualMachines"
@@ -24,14 +24,16 @@
                         "equals": "Microsoft.Resources/subscriptions/resourceGroups"
                     },
                     {
-                        "field": "name",
-                        "like": "[parameters('namePattern')]"
+                        "not": {
+                            "field": "name",
+                            "like": "[parameters('namePattern')]"
+                        }
                     }
                 ]
             },
-                "then": {
-                    "effect": "deny"
-                }
+            "then": {
+                "effect": "deny"
             }
         }
     }
+}
