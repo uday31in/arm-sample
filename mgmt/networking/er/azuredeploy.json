@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {        
+    "connectionName": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource name given to the Connection which links VNet Gateway to ExpressRoute circuit."
+      }
+    },    
+    "authorizationKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The authorization key to connect to an ExpressRoute circuit on another Azure subscription"
+      }
+    },
+    "ExpressRouteResourceID": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the ExpressRoute circuit"
+      }
+    },    
+    "virtualNetworkGWName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network gateway"
+      }
+    }    
+  },
+  "variables": {
+    "connectionType": "ExpressRoute",    
+    "routingWeight": 3
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/connections",
+      "name": "[parameters('connectionName')]",
+      "location": "[resourceGroup().location]",      
+      "properties": {
+        "authorizationKey": "[parameters('authorizationKey')]",
+        "virtualNetworkGateway1": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways',parameters('virtualNetworkGWName'))]"
+        },
+        "peer": {
+          "id": "[parameters('ExpressRouteResourceID')]"
+        },
+        "connectionType": "[variables('connectionType')]",
+        "routingWeight": "[variables('routingWeight')]"
+      }
+    }
+  ]
+}

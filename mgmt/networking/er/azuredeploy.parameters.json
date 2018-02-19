@@ -1,0 +1,18 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "connectionName": {
+      "value": "ERConnection"
+    },
+    "ExpressRouteResourceID": {
+      "value": "/subscriptions/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/resourceGroups/YourRG/providers/Microsoft.Network/expressRouteCircuits/ER-Circuit"
+    },
+    "authorizationKey" : {
+      "value" :  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    "virtualNetworkGWName": {
+      "value": "ERGW"
+    }
+  }
+}
