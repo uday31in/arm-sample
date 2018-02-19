@@ -3,24 +3,31 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
+      "value": "Hub-US-VNet"
     },
     "vnetAddressPrefix": {
+      "value": "10.10.0.0/16"
     },
     "DNSServerAddress" : {
+      "value" :  ["10.10.1.4"]
     },
     "subnet1Name": {
       "value": "Corp"
     },
     "subnet1Prefix": {
+      "value": "10.10.1.0/24"
     },    
     "gwSubnetPrefix": {
+      "value": "10.10.0.0/27"
     },
     "gwName": {
+      "value": "Hub-US-ERGW"
     },
     "sku": {
       "value": "Standard"
     },
     "gatewayPublicIpName": {
+      "value": "Hub-US-ERGWPIP"
     }		
   }
 }
