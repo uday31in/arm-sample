@@ -4,13 +4,13 @@
     "parameters": {
         "vNet1Name":
         {
-            "value": "Hub-VNet"
+            "value": ""
         },
         "vNet1id": {
             "value": ""
         },
         "vNet1ResourceGroup" :{
-            "value": "hub-vnet"
+            "value": ""
         },
         
         "vNet1subscriptionId" :{
@@ -20,14 +20,14 @@
         
 
         "vNet2Name": {
-            "value": "spoke-wcus-prod"
+            "value": ""
         },
         "vNet2id": {
             
             "value": ""
         },
         "vNet2ResourceGroup" :{
-            "value": "spoke-vnet"
+            "value": ""
         },
         "vNet2subscriptionId" :{
             "value": ""

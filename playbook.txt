@@ -1,32 +1,95 @@
 # Creating Hub
 
-rgname="hub-networking"
-location="westcentralus"
+rgname="bp-wus2-hub-networking"
+location="westus2"
 az group create --name "$rgname" --location $location
 az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/hub/azuredeploy.json --parameters /data/mgmt/networking/hub/azuredeploy.parameters.json
+
+
+
+# Creating Spoke VNet
+
+az account set --subscription "BP Service (Spoke)"
+rgname="bp-wus2-spoke-networking"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json
+
+# Creating vNet Peering
+
+az group deployment create --name  "$rgname-hub-spoke-peering" --resource-group "$rgname" --template-file /data/mgmt/networking/peering/azuredeploy.json --parameters /data/mgmt/networking/peering/azuredeploy.parameters.json
+
+#az group delete --name $rgname --no-wait --yes
+
+
+
+#creating ase
+az account set --subscription "BP Service (Spoke)"
+rgname="bp-wus2-spoke-ase"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
+
+
+# Creating DC 
+
+az account set --subscription "BP Shared Services Hub"
+rgname="bp-wus2-hub-domaincontroller"
+location="westus2"
+az group create --name "$rgname" --location $location
+
+
+#creating App1
+az account set --subscription "BP Service (Spoke)"
+rgname="app1"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
+
 
 
 # Creating OMS Workspace - to do (do not have AAD admin right to create SPN)
 rgname="oms-workspace"
 location="westcentralus"
 
-# Creating Spoke VNet
 
+
+
+
+
+# Creating RG
+
+az ad group create
+
+
+#Creating NIC with dynamic IP
 az account set --subscription "BP Service (Spoke)"
-rgname="spoke-networking"
+rgname="bp-dynamicnic"
 location="westcentralus"
 az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json
-
-#az group delete --name $rgname --no-wait --yes
+az group deployment create --name  "$rgname-nic-deployment" --resource-group "$rgname" --template-file /data/app-patterns/static-ip/staticip.json
 
 
-# Creating vNet Peering
+az storage account create \
+  --name bpeventstorage \
+  --location westcentralus \
+  --resource-group bp-policyevent\
+  --sku Standard_LRS \
+  --kind BlobStorage \
+  --access-tier Hot
 
+  storageid=$(az storage account show --name bpeventstorage --resource-group bp-policyevent --query id --output tsv)
 
-#creating ase
-az account set --subscription "BP Service (Spoke)"
-rgname="spoke-networking"
-location="westcentralus"
-az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json
+  az eventgrid event-subscription create \
+  --resource-id $storageid \
+  --name stroageaccountsub \
+  --endpoint https://hookbin.com/bin/vqLLdQeB
+
+export AZURE_STORAGE_ACCOUNT=bpeventstorage
+export AZURE_STORAGE_ACCESS_KEY="$(az storage account keys list --account-name bpeventstorage --resource-group bp-policyevent --query "[0].value" --output tsv)"
+
+az storage container create --name testcontainer
+
+touch testfile.txt
+az storage blob upload --file testfile.txt --container-name testcontainer --name testfile.txt
+

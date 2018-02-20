@@ -6,13 +6,13 @@
             "value": "upstream-ase"
         },
         "aseLocation": {
-            "value": "West Central US"
+            "value": "West US 2"
         },
         "existingVnetResourceId": {
-            "value": "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/spoke-vnet/providers/Microsoft.Network/virtualNetworks/spoke-wcus-prod"
+            "value": "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/bp-wus2-spoke-networking/providers/Microsoft.Network/virtualNetworks/bp-wus2-prod-spoke"
         },
         "subnetName": {
-            "value": "wcus-prod-ase"
+            "value": "bp-wus2-prod-ase"
         },
         "internalLoadBalancingMode": {
             "value": 3

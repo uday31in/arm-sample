@@ -3,6 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
+     
       "value": "Hub-EMEA-VNet"
     },
     "vnetAddressPrefix": {
@@ -12,7 +13,8 @@
       "value" :  ["10.0.1.4"]
     },
     "subnet1Name": {
-      "value": "Corp"
+
+      "value": "wus2-corp"
     },
     "subnet1Prefix": {
       "value": "10.0.1.0/24"
