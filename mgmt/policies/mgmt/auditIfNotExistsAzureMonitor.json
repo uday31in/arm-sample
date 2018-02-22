@@ -1,0 +1,35 @@
+{
+    "parameters": {
+        "listOfResourceTypes": {
+            "type": "Array",
+            "metadata": {
+                "displayName": "Resource Types",
+                "strongType": "resourceTypes"
+            }
+        }
+    },
+    "policyRule": {
+        "if": {
+            "field": "type",
+            "in": "[parameters('listOfResourceTypes')]"
+        },
+        "then": {
+            "effect": "AuditIfNotExists",
+            "details": {
+                "type": "Microsoft.Insights/diagnosticSettings",
+                "existenceCondition": {
+                    "allOf": [
+                        {
+                            "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                            "equals": "true"
+                        },
+                        {
+                            "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                            "equals": "true"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

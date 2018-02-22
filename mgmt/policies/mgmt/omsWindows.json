@@ -1,20 +1,13 @@
 {
     "parameters": {
-        "logAnalyticsSubscriptionId": {
-            "type": "string",
-            "displayName": "Parameter for subscription Id.",
-            "description": "Subscription Id where Log Analytics is located."
-        },
-        "logAnalyticsResourceGroup": {
-            "type": "string",
-            "displayName": "Parameter for Resource Group name.",
-            "description": "Resource Group name containing your Log Analytics workspace."
-        },
         "logAnalyticsWorkspaceName": {
-            "type": "string",
+            "type": "array",
+            "metadata": {
             "displayName": "Parameter for Log Analytics workspace name.",
-            "description": "Name of your Log Analytics workspace."
+            "description": "Name of your Log Analytics workspace.",
+            "strongType": "omsWorkspace"
         }
+    }
     },
     "policyRule": {
         "if": {
@@ -80,12 +73,6 @@
                                 "location": {
                                     "type": "string"
                                 },
-                                "logAnalyticsSubscriptionId": {
-                                    "type": "string"
-                                },
-                                "logAnalyticsResourceGroup": {
-                                    "type": "string"
-                                },
                                 "logAnalyticsWorkspaceName": {
                                     "type": "string"
                                 }
@@ -102,10 +89,10 @@
                                         "typeHandlerVersion": "1.0",
                                         "autoUpgradeMinorVersion": true,
                                         "settings": {
-                                            "workspaceId": "[reference(concat('/subscriptions/', parameters('logAnalyticsSubscriptionId'), '/resourceGroups/', parameters('logAnalyticsResourceGroup'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').customerId]"
+                                            "workspaceId": "[reference(concat(parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').customerId]"
                                         },
                                         "protectedSettings": {
-                                            "workspaceKey": "[listKeys(concat('/subscriptions/', parameters('logAnalyticsSubscriptionId'), '/resourceGroups/', parameters('logAnalyticsResourceGroup'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').primarySharedKey]"
+                                            "workspaceKey": "[listKeys(concat(parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').primarySharedKey]"
                                         }
                                     }
                                 }
@@ -123,12 +110,6 @@
                             },
                             "location": {
                                 "value": "[field('location')]"
-                            },
-                            "logAnalyticsSubscriptionId":{
-                                "value": "[parameters('logAnalyticsSubscriptionId')]"
-                            },
-                            "logAnalyticsResourceGroup": {
-                                "value": "[parameters('logAnalyticsResourceGroup')]"
                             },
                             "logAnalyticsWorkspaceName": {
                                 "value": "[parameters('logAnalyticsWorkspaceName')]"
