@@ -2,36 +2,29 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "vNet1Name":
-        {
+        "vNet1Name": {
             "value": ""
         },
-        "vNet1id": {
+        "vNet1ResourceGroup": {
             "value": ""
         },
-        "vNet1ResourceGroup" :{
+        "vNet1subscriptionId": {
             "value": ""
         },
-        
-        "vNet1subscriptionId" :{
-            "value": ""
+        "vNet1AllowGWTransit": {
+            "value": "false"
         },
-
-        
-
         "vNet2Name": {
             "value": ""
         },
-        "vNet2id": {
-            
+        "vNet2ResourceGroup": {
             "value": ""
         },
-        "vNet2ResourceGroup" :{
+        "vNet2subscriptionId": {
             "value": ""
         },
-        "vNet2subscriptionId" :{
-            "value": ""
+        "vNet2UseRemoteGW": {
+            "value": "false"
         }
-
     }
 }
