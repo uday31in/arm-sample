@@ -1,0 +1,47 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverfarms_manual_asp_name": {
+            "defaultValue": "manual-asp",
+            "type": "String"
+        },
+       
+        "serverfarms_manual_asp_id": {
+            "defaultValue": "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/bp-wus2-spoke-ase/providers/Microsoft.Web/hostingEnvironments/upstream-ase",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/bp-vsts-app/providers/Microsoft.Web/serverfarms/manual-asp'.",
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "I1",
+                "tier": "Isolated",
+                "size": "I1",
+                "family": "I",
+                "capacity": 0
+            },
+            "kind": "app",
+            "name": "[parameters('serverfarms_manual_asp_name')]",
+            "apiVersion": "2016-09-01",
+            "location": "West US 2",
+            "scale": null,
+            "properties": {
+                "name": "[parameters('serverfarms_manual_asp_name')]",
+                "workerTierName": null,
+                "adminSiteName": null,
+                "hostingEnvironmentProfile": {
+                    "id": "[parameters('serverfarms_manual_asp_id')]"
+                },
+                "perSiteScaling": false,
+                "reserved": false,
+                "targetWorkerCount": 1,
+                "targetWorkerSizeId": 0
+            },
+            "dependsOn": []
+        }
+    ]
+}
