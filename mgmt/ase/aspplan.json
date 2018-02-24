@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "serverfarms_manual_asp_name": {
-            "defaultValue": "manual-asp",
+            "defaultValue": "manual-asp2",
             "type": "String"
         },
        

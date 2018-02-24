@@ -30,6 +30,23 @@ location="westus2"
 az group create --name "$rgname" --location $location
 az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
 
+#creating ASP
+
+az account set --subscription "BP Service (Spoke)"
+rgname="bp-vsts-app"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/aspplan.json
+
+
+#joining domain
+
+az account set --subscription "BP Service (Spoke)"
+rgname="bp-domain-join"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-domain-join" --resource-group "$rgname" --template-file /data/app-patterns/single-vm/addomianjoin-extension.json
+
 
 # Creating DC 
 
@@ -44,9 +61,7 @@ az account set --subscription "BP Service (Spoke)"
 rgname="app1"
 location="westus2"
 az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
-
-
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/app-patterns/two-tier/azuredeploy.json
 
 # Creating OMS Workspace - to do (do not have AAD admin right to create SPN)
 rgname="oms-workspace"
