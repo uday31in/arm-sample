@@ -5,7 +5,7 @@
 
         "vmName": {
             "type": "string",
-            "defaultValue": "bp-domain-join3",
+            "defaultValue": "bp-domain-join1",
             "minLength": 1,
             "metadata": {
                 "description": "List of virtual machines to be domain joined, if using multiple VMs, make their names comma separate. E.g. VM01, VM02, VM03."
@@ -54,7 +54,7 @@
     },
     "variables": {
         "domainJoinOptions": 3,
-        "keyVaultRef" : "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0/resourceGroups/bp-shared-spoke/providers/Microsoft.KeyVault/vaults/bp-shared-services"
+        "keyVaultRef" : "/subscriptions/926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4/resourceGroups/bp-shared-services/providers/Microsoft.KeyVault/vaults/bp-shared-services"
     },
     "resources": [
 
@@ -81,9 +81,6 @@
                     "location" : {
                         "value" : "[resourcegroup().location]"
                     },
-
-                   
-                
                     "domainJoinUserName":
                     {
                       "reference":
