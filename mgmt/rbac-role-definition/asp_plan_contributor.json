@@ -1,0 +1,26 @@
+{
+  "Name": "BP ASP Plan Contirbutor",
+  "IsCustom": true,
+  "Description": "Create ASP Plan on ASE",
+  "Actions": [
+	 "Microsoft.Authorization/*/read",
+            "Microsoft.Insights/alertRules/*",
+            "Microsoft.ResourceHealth/availabilityStatuses/read",
+            "Microsoft.Resources/deployments/*",
+            "Microsoft.Resources/subscriptions/resourceGroups/read",
+            "Microsoft.Support/*",
+            "Microsoft.Web/serverFarms/*",
+            "Microsoft.Web/hostingenvironments/serverFarms/*",
+	 "Microsoft.Web/certificates/*",
+            "Microsoft.Web/listSitesAssignedToHostName/read",
+            "Microsoft.Web/sites/*"
+
+		
+  ],
+  "NotActions": [
+
+  ],
+  "AssignableScopes": [
+    "/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0"
+  ]
+}
