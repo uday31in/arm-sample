@@ -106,7 +106,7 @@
                     ],
                     "tags": {},
                     "properties": {
-                        "description": "OMS Recovery Vault Name",
+                        "description": "OMS Resource Group Name",
                         "value": "[concat('\"',resourceGroup().name,'\"')]"
                     }
                 },
