@@ -1,0 +1,66 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "routeTableName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the route table to be created or updated"
+            }
+        },
+        "routeName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the route to create"
+            }
+        },
+        "addressPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Destination prefix of the route"
+            }
+        },
+        "nextHopType": {
+            "type": "string",
+            "allowedValues": [
+                "Internet",
+                "None",
+                "VirtualAppliance",
+                "VirtualNetworkGateway",
+                "VnetLocal"
+            ],
+            "metadata": {
+                "description": "Next hop type for the route"
+            }
+        },
+        "nextHopIpAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "IP address of the next hop for the route"
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "name": "[parameters('routeTableName')]",
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2017-10-01",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "routes":[
+                    {
+                        "name": "[parameters('routeName')]",
+                        "properties":{
+                            "addressPrefix": "[parameters('addressPrefix')]",
+                            "nextHopType": "[parameters('nextHopType')]" ,
+                            "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+                        }
+                    }                    
+                ]
+            }
+        }
+    ],
+    "outputs": {  }
+  }
