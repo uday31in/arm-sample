@@ -121,23 +121,22 @@
       "metadata": {
         "description": "Subnet 2 Prefix"
       }
-    },
+    }
   },
-  "variables": {
-    "apiVersion": "2015-06-15",	
+  "variables": {    
 	"webSubnetNSG": "web-subnet-nsg",
 	"appSubnetNSG": "app-subnet-nsg",
 	"dbSubnetNSG": "db-subnet-nsg"
   },
   "resources": [
     {
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
 	  "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('webSubnetNSG'))]",
-		"[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnetNSG'))]",
+		    "[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnetNSG'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('dbSubnetNSG'))]"
       ],
       "properties": {

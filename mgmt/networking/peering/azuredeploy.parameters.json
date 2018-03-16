@@ -2,36 +2,29 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "vNet1Name":
-        {
-            "value": "Hub-VNet"
-        },
-        "vNet1id": {
+        "vNet1Name": {
             "value": ""
         },
-        "vNet1ResourceGroup" :{
-            "value": "hub-vnet"
-        },
-        
-        "vNet1subscriptionId" :{
+        "vNet1ResourceGroup": {
             "value": ""
         },
-
-        
-
+        "vNet1subscriptionId": {
+            "value": ""
+        },
+        "vNet1AllowGWTransit": {
+            "value": "false"
+        },
         "vNet2Name": {
-            "value": "spoke-wcus-prod"
-        },
-        "vNet2id": {
-            
             "value": ""
         },
-        "vNet2ResourceGroup" :{
-            "value": "spoke-vnet"
-        },
-        "vNet2subscriptionId" :{
+        "vNet2ResourceGroup": {
             "value": ""
+        },
+        "vNet2subscriptionId": {
+            "value": ""
+        },
+        "vNet2UseRemoteGW": {
+            "value": "false"
         }
-
     }
 }

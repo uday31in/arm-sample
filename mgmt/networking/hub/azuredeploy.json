@@ -27,7 +27,7 @@
       "type": "array",
       "defaultValue": ["10.0.1.4"],
       "metadata": {
-        "description": "Subnet 1 Prefix"
+        "description": "Subnet 1 DNS Server"
       }
     },
     "subnet1Name": {
@@ -44,23 +44,43 @@
         "description": "Gateway Subnet address prefix"
       }
     },
-    "gwSubnetName": {
+    "gwName": {
       "type": "string",
-      "defaultValue": "GatewaySubnet",
+      "defaultValue": "ERGW",
+      "metadata": {
+        "description": "ExpressRoute Gateway Name"
+      }
+    },    
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard",
       "allowedValues": [
-        "GatewaySubnet"
+        "Basic",
+        "Standard",
+        "HighPerformance",
+        "UltraPerformance"
       ],
       "metadata": {
-        "description": "GatewaySubnet in Hub VNet"
+        "description": "ExpressRoute Gateway SKU"
       }
-    }    
+    },
+    "gatewayPublicIpName": {
+      "type": "string",
+      "defaultValue": "ERGW-PIP",
+      "metadata": {
+        "description": "Name of the new public IP address for the gateway"
+      }
+    }
   },
-  "variables": {
-    "apiVersion": "2015-06-15"
+  "variables": {    
+    "gwSubnetName": "GatewaySubnet",
+    "gatewayType": "ExpressRoute",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]"
   },
   "resources": [
     {
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2017-10-01",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
@@ -83,12 +103,52 @@
             }
           },
           {
-            "name": "[parameters('gwSubnetName')]",
+            "name": "[variables('gwSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('gwSubnetPrefix')]"
             }
           }
         ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "name": "[parameters('gwName')]",
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('gatewayPublicIpName'))]"
+      ],
+      "properties": {
+        "gatewayType": "[variables('gatewayType')]",
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('gatewaysubnetId')]"
+              },
+              "publicIpAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
+              }
+            }
+          }
+        ],
+        "sku": {
+          "name": "[parameters('sku')]",
+          "tier": "[parameters('sku')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('gatewayPublicIpName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
       }
     }
   ]

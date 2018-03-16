@@ -4,7 +4,7 @@
   "parameters": {
 	"operatingSystem": {
       "type": "string",
-      "defaultValue": "Ubuntu",
+      "defaultValue": "Server2016",
       "metadata": {
         "description": "Operating System of the Server"
       },
@@ -37,42 +37,42 @@
     },
 	"networkresourcegroupname": {
       "type": "string",
-      "defaultValue": "upstream-ne-prod",
+      "defaultValue": "bp-wus2-spoke-networking",
       "metadata": {
         "description": "networkresourcegroupname"
       }
     },
 	"virtualNetworkName": {
       "type": "string",
-      "defaultValue": "ne-prod",
+      "defaultValue": "bp-wus2-prod-spoke",
       "metadata": {
         "description": "virtualNetworkName"
       }
     },
 	"tier1subnetName": {
       "type": "string",
-      "defaultValue": "ne-prod-web",
+      "defaultValue": "bp-wus2-prod-web",
       "metadata": {
         "description": "tier1subnetName"
       }
     },
 	"tier1subnetNameIlb": {
       "type": "string",
-      "defaultValue": "ne-prod-web-ilb",
+      "defaultValue": "bp-wus2-prod-web-ilb",
       "metadata": {
         "description": "tier1subnetNameIlb"
       }
     },
 	"tier2subnetName": {
       "type": "string",
-      "defaultValue": "ne-prod-app",
+      "defaultValue": "bp-wus2-prod-app",
       "metadata": {
         "description": "tier2subnetName"
       }
     },
 	"tier2subnetNameIlb": {
       "type": "string",
-      "defaultValue": "ne-prod-app-ilb",
+      "defaultValue": "bp-wus2-prod-app-ilb",
       "metadata": {
         "description": "tier2subnetNameIlb"
       }
@@ -140,7 +140,7 @@
 	
 	 {
 		"apiVersion": "2017-05-10",
-		"name": "[concat(variables('tier2NamePrefix'), '-deployment')]",
+		"name": "[concat(parameters('tier2NamePrefix'), '-deployment')]",
 		"type": "Microsoft.Resources/deployments",		
 		"properties": {
 			"mode": "Incremental",

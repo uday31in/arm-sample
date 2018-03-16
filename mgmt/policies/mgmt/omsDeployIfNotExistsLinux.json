@@ -1,19 +1,12 @@
 {
     "parameters": {
-        "logAnalyticsSubscriptionId": {
+        "logAnalytics": {
             "type": "string",
-            "displayName": "Parameter for subscription Id.",
-            "description": "Subscription Id where Log Analytics is located."
-        },
-        "logAnalyticsResourceGroup": {
-            "type": "string",
-            "displayName": "Parameter for Resource Group name.",
-            "description": "Resource Group name containing your Log Analytics workspace."
-        },
-        "logAnalyticsWorkspaceName": {
-            "type": "string",
-            "displayName": "Parameter for Log Analytics workspace name.",
-            "description": "Name of your Log Analytics workspace."
+            "metadata": {
+                "displayName": "Parameter for Log Analytics workspace",
+                "description": "Select Log Analytics workspace from dropdown list",
+                "strongType": "omsWorkspace"
+            }
         }
     },
     "policyRule": {
@@ -25,27 +18,17 @@
                 },
                 {
                     "field": "Microsoft.Compute/imagePublisher",
-                    "equals": "MicrosoftWindowsServer"
+                    "equals": "Canonical"
                 },
                 {
                     "field": "Microsoft.Compute/imageOffer",
-                    "equals": "WindowsServer"
+                    "equals": "UbuntuServer"
                 },
                 {
                     "field": "Microsoft.Compute/imageSKU",
                     "in": [
-                        "2008-R2-SP1",
-                        "2008-R2-SP1-smalldisk",
-                        "2012-Datacenter",
-                        "2012-Datacenter-smalldisk",
-                        "2012-R2-Datacenter",
-                        "2012-R2-Datacenter-smalldisk",
-                        "2016-Datacenter",
-                        "2016-Datacenter-Server-Core",
-                        "2016-Datacenter-Server-Core-smalldisk",
-                        "2016-Datacenter-smalldisk",
-                        "2016-Datacenter-with-Containers",
-                        "2016-Datacenter-with-RDSH"
+                        "14.04.5-LTS",
+                        "12.04.2-LTS"
                     ]
                 }
             ]
@@ -53,13 +36,12 @@
         "then": {
             "effect": "deployIfNotExists",
             "details": {
-                "name": "policy1",
                 "type": "Microsoft.Compute/virtualMachines/extensions",
                 "existenceCondition": {
                     "allOf": [
                         {
                             "field": "Microsoft.Compute/virtualMachines/extensions/type",
-                            "equals": "MicrosoftMonitoringAgent"
+                            "equals": "OmsAgentForLinux"
                         },
                         {
                             "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
@@ -80,13 +62,7 @@
                                 "location": {
                                     "type": "string"
                                 },
-                                "logAnalyticsSubscriptionId": {
-                                    "type": "string"
-                                },
-                                "logAnalyticsResourceGroup": {
-                                    "type": "string"
-                                },
-                                "logAnalyticsWorkspaceName": {
+                                "logAnalytics": {
                                     "type": "string"
                                 }
                             },
@@ -98,14 +74,14 @@
                                     "apiVersion": "2017-03-30",
                                     "properties": {
                                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                                        "type": "MicrosoftMonitoringAgent",
-                                        "typeHandlerVersion": "1.0",
+                                        "type": "OmsAgentForLinux",
+                                        "typeHandlerVersion": "1.4",
                                         "autoUpgradeMinorVersion": true,
                                         "settings": {
-                                            "workspaceId": "[reference(concat('/subscriptions/', parameters('logAnalyticsSubscriptionId'), '/resourceGroups/', parameters('logAnalyticsResourceGroup'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').customerId]"
+                                            "workspaceId": "[reference(concat(parameters('logAnalytics')), '2015-11-01-preview').customerId]"
                                         },
                                         "protectedSettings": {
-                                            "workspaceKey": "[listKeys(concat('/subscriptions/', parameters('logAnalyticsSubscriptionId'), '/resourceGroups/', parameters('logAnalyticsResourceGroup'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName')), '2015-11-01-preview').primarySharedKey]"
+                                            "workspaceKey": "[listKeys(concat(parameters('logAnalytics')), '2015-11-01-preview').primarySharedKey]"
                                         }
                                     }
                                 }
@@ -113,7 +89,7 @@
                             "outputs": {
                                 "policy": {
                                     "type": "string",
-                                    "value": "[concat('Enabled monitoring for Windows VM', ': ', parameters('vmName'))]"
+                                    "value": "[concat('Enabled monitoring for Linux VM', ': ', parameters('vmName'))]"
                                 }
                             }
                         },
@@ -124,14 +100,8 @@
                             "location": {
                                 "value": "[field('location')]"
                             },
-                            "logAnalyticsSubscriptionId":{
-                                "value": "[parameters('logAnalyticsSubscriptionId')]"
-                            },
-                            "logAnalyticsResourceGroup": {
-                                "value": "[parameters('logAnalyticsResourceGroup')]"
-                            },
-                            "logAnalyticsWorkspaceName": {
-                                "value": "[parameters('logAnalyticsWorkspaceName')]"
+                            "logAnalytics": {
+                                "value": "[parameters('logAnalytics')]"
                             }
                         }
                     }

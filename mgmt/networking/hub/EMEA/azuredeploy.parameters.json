@@ -3,7 +3,8 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
-      "value": "Hub-VNet"
+     
+      "value": "Hub-EMEA-VNet"
     },
     "vnetAddressPrefix": {
       "value": "10.0.0.0/16"
@@ -12,16 +13,23 @@
       "value" :  ["10.0.1.4"]
     },
     "subnet1Name": {
-      "value": "Corp"
+
+      "value": "wus2-corp"
     },
     "subnet1Prefix": {
       "value": "10.0.1.0/24"
-    },
-    "gwSubnetName": {
-      "value": "GatewaySubnet"
-    },
+    },    
     "gwSubnetPrefix": {
       "value": "10.0.0.0/27"
-    }	
+    },
+    "gwName": {
+      "value": "Hub-EMEA-ERGW"
+    },
+    "sku": {
+      "value": "Standard"
+    },
+    "gatewayPublicIpName": {
+      "value": "Hub-EMEA-ERGWPIP"
+    }		
   }
 }
