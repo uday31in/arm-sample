@@ -92,6 +92,14 @@ az group create --name "$rgname" --location $location
 az group deployment create --name  "$rgname-nic-deployment" --resource-group "$rgname" --template-file /data/app-patterns/static-ip/staticip.json
 
 
+
+
+#Creating Role Definition
+
+az role definition create --role-definition @/data/mgmt/rbac-role-definition/appdevops.json
+
+
+
 az storage account create \
   --name bpeventstorage \
   --location westcentralus \
