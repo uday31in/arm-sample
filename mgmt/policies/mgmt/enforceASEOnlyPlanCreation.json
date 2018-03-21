@@ -5,7 +5,7 @@
         "displayName": "Only allow a creation of ASP on ASE",
         "description": "Only allow a creation of ASP on ASE",
         "parameters": {
-			"appServiceEnvironmentName": {
+			"hostingEnvironmentProfileID": {
 				"type": "string",
 				"defaultValue": "upstream-ase",
 				"metadata": {
@@ -25,8 +25,8 @@
                         "not": {
                             "allOf": [
                                 {
-                                    "field": "properties/hostingEnvironment",
-                                    "equals": "[parameters('appServiceEnvironmentName')]"
+                                    "field": "Microsoft.Web/serverfarms/properties.hostingEnvironmentProfile.id",
+                                    "equals": "[parameters('hostingEnvironmentProfileID')]"
                                 }
                              
                             ]
