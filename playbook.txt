@@ -28,7 +28,7 @@ az account set --subscription "BP Service (Spoke)"
 rgname="bp-wus2-spoke-ase"
 location="westus2"
 az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
+az group deployment create --name  "$rgname-spoke-ase-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
 
 #creating ASP
 
@@ -49,7 +49,7 @@ az group create --name "$rgname" --location $location
 
 az vm create -g $rgname --name bp-domain-join1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
 az vm create -g $rgname --name bp-domain-join2 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
-az vm create -g $rgname --name bp-domain-join3 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+az vm create -g $rgname --name bp-domain-join4 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
 
 rgname=acs-k8-oldschool1
 az group create --name "$rgname" --location westus2
