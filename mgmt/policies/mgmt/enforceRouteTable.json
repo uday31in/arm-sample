@@ -1,0 +1,55 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "enforce-routeTable-on-subnet",
+    "properties": {
+        "displayName": "routeTable X on every subnet",
+        "description": "This policy enforces a specific routeTable on every subnet",
+        "parameters": {
+            "routeTableId": {
+                "type": "String",
+                "metadata": {
+                    "description": "Resource Id of the routeTable",
+                    "displayName": "routeTable Id",
+                    "strongType": "routeTables"
+                }
+            }
+        },
+        "policyRule": {
+            "if": {
+                "anyOf": [
+                    {
+                        "allOf": [
+                            {
+                                "field": "type",
+                                "equals": "Microsoft.Network/virtualNetworks"
+                            },
+                            {
+                                "not": {
+                                    "field": "Microsoft.Network/virtualNetworks/subnets[*].routeTable.id",
+                                    "equals": "[parameters('routeTableId')]"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "allOf": [
+                            {
+                                "field": "type",
+                                "equals": "Microsoft.Network/virtualNetworks/subnets"
+                            },
+                            {
+                                "not": {
+                                    "field": "Microsoft.Network/virtualNetworks/subnets/routeTable.id",
+                                    "equals": "[parameters('routeTableId')]"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}
