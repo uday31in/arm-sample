@@ -2,7 +2,31 @@
 	"properties": {
 		"displayName": "Enforce Server level threat detection setting",
 		"description": "Enforce threat detection setting for SQL Server",
-		"parameters": {},
+		"parameters": {
+			
+			"effect": {
+                "type": "String",
+                "allowedValues": [
+                    "auditIfNotExists",
+                    "deny"
+                ],
+                "metadata": {
+                    "displayName": "Policy Effect"
+                }
+            },
+			
+			"setting": {
+                "type": "String",
+                "allowedValues": [
+                    "enabled",
+                    "disabled"
+                ],
+                "metadata": {
+                    "displayName": "Threat Detection Setting"
+                }
+            }
+		
+		},
 		"policyRule": {
 			"if": {
 				"allOf": [
@@ -12,12 +36,35 @@
 					},
 					{
 						"field": "Microsoft.Sql/securityAlertPolicies.state",
-						"notEquals": "enabled"
+						"notEquals": "[parameters('setting')]"
 					}
 				]
 			},
 			"then": {
-				"effect": "deny"				
+				"effect": "[parameters('effect')]",
+				"details": {
+
+                    "type": "Microsoft.SQL/servers/securityAlertPolicies",
+
+                    "name": "default",
+
+                    "existenceCondition": {
+
+                        "allOf": [
+
+                            {
+
+                                "field": "Microsoft.Sql/securityAlertPolicies.state",
+
+                                "notEquals": "[parameters('effect')]"
+
+                            }
+
+                        ]
+
+                    }
+
+                }
 			}
 			
 		}
