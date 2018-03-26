@@ -49,14 +49,19 @@ az group create --name "$rgname" --location $location
 
 az vm create -g $rgname --name bp-domain-join1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
 az vm create -g $rgname --name bp-domain-join2 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
-az vm create -g $rgname --name bp-domain-join4 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
-
-rgname=acs-k8-oldschool1
-az group create --name "$rgname" --location westus2
-az vm create -g $rgname --name oldschool1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g acs-k8-vnet-peer --vnet-name  udayk8westus2Net --name k8westus2 --query id -o tsv) --image UbuntuLTS
+az vm create -g $rgname --name bp-domain-join6 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
 
 
-az group deployment create --name  "$rgname-domain-join" --resource-group "$rgname" --template-file /data/app-patterns/single-vm/addomianjoin-master.json
+rgname="bp-addomianjoin-policy"
+az vm create -g $rgname --name bp-domain-join8 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+
+rgname="bp-antimalware"
+az vm create -g $rgname --name bp-domain-join9 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+
+
+
+#empty RG
+az group deployment create --name  "$rgname-policy-test" --resource-group "$rgname" --template-file /data/mgmt/policies/mgmt/empty.json --mode Complete
 
 
 # Creating DC 
@@ -87,7 +92,7 @@ location="westcentralus"
 #Creating NIC with dynamic IP
 az account set --subscription "BP Service (Spoke)"
 rgname="bp-dynamicnic"
-location="westcentralus"
+location="westus2"
 az group create --name "$rgname" --location $location
 az group deployment create --name  "$rgname-nic-deployment" --resource-group "$rgname" --template-file /data/app-patterns/static-ip/staticip.json
 
