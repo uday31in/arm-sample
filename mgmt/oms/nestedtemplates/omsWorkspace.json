@@ -13,6 +13,9 @@
             "metadata": {
                 "description": "Specify the region for your Workspace"
             }
+        },
+        "omsAutomationAccountName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -65,7 +68,7 @@
                 {
                     "name": "[concat('AzureNSGAnalytics', '(', parameters('omsWorkspaceName'), ')')]",
                     "marketplaceName": "AzureNSGAnalytics"
-                }                                                
+                }
             ]
         }
     },
@@ -92,6 +95,17 @@
                     "kind": "AzureActivityLog",
                     "properties": {
                         "linkedResourceId": "[concat(subscription().id, '/providers/Microsoft.Insights/eventTypes/management')]"
+                    }
+                },
+                {
+                    "name": "Automation",
+                    "type": "linkedServices",
+                    "apiVersion": "2015-11-01-preview",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName'))]"
+                    ],
+                    "properties": {
+                        "resourceId": "[resourceId('Microsoft.Automation/automationAccounts/', parameters('omsAutomationAccountName'))]"
                     }
                 },
                 {

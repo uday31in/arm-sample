@@ -63,6 +63,9 @@
                     },
                     "omsWorkspaceRegion": {
                         "value": "[parameters('omsWorkspaceRegion')]"
+                    },
+                    "omsAutomationAccountName": {
+                        "value": "[parameters('omsAutomationAccountName')]"
                     }
                 }
             }
