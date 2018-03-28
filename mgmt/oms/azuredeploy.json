@@ -66,6 +66,9 @@
                     },
                     "omsAutomationAccountName": {
                         "value": "[parameters('omsAutomationAccountName')]"
+                    },
+                    "omsAutomationRegion": {
+                        "value": "[parameters('omsAutomationRegion')]"
                     }
                 }
             }
