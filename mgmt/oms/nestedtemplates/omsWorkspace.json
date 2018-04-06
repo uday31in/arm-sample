@@ -13,6 +13,12 @@
             "metadata": {
                 "description": "Specify the region for your Workspace"
             }
+        },
+        "omsAutomationAccountName": {
+            "type": "string"
+        },
+        "omsAutomationRegion": {
+            "type": "string"
         }
     },
     "variables": {
@@ -65,11 +71,23 @@
                 {
                     "name": "[concat('AzureNSGAnalytics', '(', parameters('omsWorkspaceName'), ')')]",
                     "marketplaceName": "AzureNSGAnalytics"
-                }                                                
+                }
             ]
         }
     },
     "resources": [
+        {
+            "apiversion": "2015-10-31",
+            "location": "[parameters('omsAutomationRegion')]",
+            "name": "[parameters('omsAutomationAccountName')]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "comments": "Automation account for OMS",
+            "properties": {
+                "sku": {
+                    "name": "OMS"
+                }
+            }
+        },
         {
             "apiVersion": "2017-03-15-preview",
             "location": "[parameters('omsWorkspaceRegion')]",
@@ -92,6 +110,18 @@
                     "kind": "AzureActivityLog",
                     "properties": {
                         "linkedResourceId": "[concat(subscription().id, '/providers/Microsoft.Insights/eventTypes/management')]"
+                    }
+                },
+                {
+                    "name": "Automation",
+                    "type": "linkedServices",
+                    "apiVersion": "2015-11-01-preview",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName'))]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/', parameters('omsAutomationAccountName'))]"
+                    ],
+                    "properties": {
+                        "resourceId": "[resourceId('Microsoft.Automation/automationAccounts/', parameters('omsAutomationAccountName'))]"
                     }
                 },
                 {

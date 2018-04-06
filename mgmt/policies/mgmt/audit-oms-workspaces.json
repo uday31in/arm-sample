@@ -1,0 +1,21 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "audit-oms-workspaces",
+    "properties": {
+        "displayName": "Audit oms-workspaces",
+        "description": "This policy audits if new oms-workspaces is created.",
+        "parameters": {
+            
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.OperationalInsights/workspaces"
+            },
+            "then": {
+                "effect": "auditIfNotExists",
+                
+            }
+        }
+    }
+}

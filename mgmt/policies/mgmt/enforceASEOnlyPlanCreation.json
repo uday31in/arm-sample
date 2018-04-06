@@ -1,0 +1,42 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "platform-image-policy",
+    "properties": {
+        "displayName": "Only allow a creation of ASP on ASE",
+        "description": "Only allow a creation of ASP on ASE",
+        "parameters": {
+			"hostingEnvironmentProfileID": {
+				"type": "string",
+				"defaultValue": "upstream-ase",
+				"metadata": {
+					"description": "appServiceEnvironmentName"
+				}
+			}
+		},
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Web/serverfarms"
+                            
+                    },
+                    {
+                        "not": {
+                            "allOf": [
+                                {
+                                    "field": "Microsoft.Web/serverfarms/properties.hostingEnvironmentProfile.id",
+                                    "equals": "[parameters('hostingEnvironmentProfileID')]"
+                                }
+                             
+                            ]
+                        }
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}

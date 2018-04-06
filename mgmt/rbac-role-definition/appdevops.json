@@ -41,7 +41,8 @@
             "Microsoft.Storage/storageAccounts/read",
             "Microsoft.Support/*",
 			"Microsoft.Storage/storageAccounts/write/*",
-		    "Microsoft.Network/networkSecurityGroups/write/*"
+		    "Microsoft.Network/networkSecurityGroups/write/*",
+			"Microsoft.Network/virtualNetworks/subnets/*"
 
 		
   ],

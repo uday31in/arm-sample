@@ -3,7 +3,7 @@
   "IsCustom": true,
   "Description": "Create ASP Plan on ASE",
   "Actions": [
-	 "Microsoft.Authorization/*/read",
+			"Microsoft.Authorization/*/read",
             "Microsoft.Insights/alertRules/*",
             "Microsoft.ResourceHealth/availabilityStatuses/read",
             "Microsoft.Resources/deployments/*",
@@ -11,7 +11,7 @@
             "Microsoft.Support/*",
             "Microsoft.Web/serverFarms/*",
             "Microsoft.Web/hostingenvironments/serverFarms/*",
-	 "Microsoft.Web/certificates/*",
+			"Microsoft.Web/certificates/*",
             "Microsoft.Web/listSitesAssignedToHostName/read",
             "Microsoft.Web/sites/*"
 
