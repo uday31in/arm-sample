@@ -17,21 +17,14 @@
             "if": {
                 "allOf": [
                     {
-                        "field": "type",
-                        "equals": "Microsoft.Web/serverfarms"
+						 "field": "type",
+						 "equals": "Microsoft.Web/serverfarms"
                             
                     },
-                    {
-                        "not": {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Web/serverfarms/properties.hostingEnvironmentProfile.id",
-                                    "equals": "[parameters('hostingEnvironmentProfileID')]"
-                                }
-                             
-                            ]
-                        }
-                    }
+					{
+						"field": "Microsoft.Web/serverfarms/hostingEnvironmentProfile",
+						"exists": true
+					}
                 ]
             },
             "then": {

@@ -1,1 +1,7 @@
 *.private
+Archive
+/MgmtGroup.backup.1.zip
+/Ensure-AzureIaC4VDCPolicyDefinitions.ps1
+/Ensure-AzureIaC4VDCRoleAssignments.ps1
+/Ensure-AzureIaC4VDCRoleDefinitions.ps1
+/Ensure-AzureIaC4VDCPolicyAssignments.ps1
