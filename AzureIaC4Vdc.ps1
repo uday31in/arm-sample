@@ -840,7 +840,7 @@ if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
 }
 
 
-Import-Module AzureRM.ManagementGroups -Force
+#Import-Module AzureRM.ManagementGroups -Force
 Import-Module $pwd\Common.psm1
 
 $falgDeleteIfNecessary = $false
