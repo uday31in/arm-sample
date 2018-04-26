@@ -806,8 +806,11 @@ $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
 
 #$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
 $path = "$pwd\MgmtGroup"
-
+$mgmtSubscriptionPath = Join-Path "$pwd\MgmtGroup\bp" "$mgmtSubscriptionID"
 Write-Host "Using Current Path: $path"
+Write-Host "$env:BUILD_REPOSITORY_LOCALPATH"
+Write-Host "$env:BUILD_SOURCESDIRECTORY"
+Write-Host "$env:path"
 dir
 
 
@@ -825,7 +828,7 @@ Import-Module $pwd\Common.psm1
 
 
 #$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
-$mgmtSubscriptionPath = Join-Path "$pwd\MgmtGroup\bp" "$mgmtSubscriptionID"
+
 
 $falgDeleteIfNecessary = $false
 
