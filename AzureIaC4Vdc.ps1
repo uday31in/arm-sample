@@ -841,7 +841,7 @@ if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
 
 
 #Import-Module AzureRM.ManagementGroups -Force
-Import-Module $pwd\Common.psm1
+Import-Module "$env:BUILD_REPOSITORY_LOCALPATH\Common.psm1"
 
 $falgDeleteIfNecessary = $false
 
