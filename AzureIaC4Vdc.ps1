@@ -811,7 +811,8 @@ Write-Host "Using Current Path: $path"
 Write-Host "$env:BUILD_REPOSITORY_LOCALPATH"
 Write-Host "$env:BUILD_SOURCESDIRECTORY"
 Write-Host "$env:path"
-dir
+
+dir $env:BUILD_REPOSITORY_LOCALPATH
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
@@ -824,20 +825,21 @@ else
     $path = "$pwd\MgmtGroup"
 }
 
+Write-Host "Using Source Path: $path"
 
 $mgmtSubscriptionPath = Join-Path "$pwd\MgmtGroup\bp" "$mgmtSubscriptionID"
 
 
-<#
+
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
    Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
 }
-#>
 
-Import-Module AzureRM.ManagementGroups
+
+Import-Module AzureRM.ManagementGroups -Force
 Import-Module $pwd\Common.psm1
 
 
