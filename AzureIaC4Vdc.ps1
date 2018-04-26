@@ -811,6 +811,9 @@ Write-Host "Using Current Path: $path"
 
 
 Import-Module $pwd\Common.psm1
+Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
+
 
 
 #$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
