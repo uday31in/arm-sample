@@ -807,48 +807,46 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
 $mgmtroot = 'b2a0bb8e-3f26-47f8-9040-209289b412a8'
 $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
-$mgmtSubscriptionPath = "$path\$mgmtroot\BP\$mgmtSubscriptionID"
 
-#$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
+if($env:BUILD_SOURCESDIRECTORY)
+{
+    Write-Host "VSTS"
+    $path = "$env:BUILD_SOURCESDIRECTORY"
 
+}
+else
+{
+    $path = "$pwd"
+}
+
+$mgmtSubscriptionPath = "$path\MgmtGroup\$mgmtroot\BP\$mgmtSubscriptionID"
 
 Write-Host "Using Current Path: $path"
 Write-Host "mgmtSubscriptionPath: $mgmtSubscriptionPath"
 Write-Host "BUILD_REPOSITORY_LOCALPATH: $env:BUILD_REPOSITORY_LOCALPATH"
 Write-Host "BUILD_SOURCESDIRECTORY: $env:BUILD_SOURCESDIRECTORY"
 
-
-if($env:BUILD_SOURCESDIRECTORY)
-{
-    Write-Host "VSTS"
-    $path = "$env:BUILD_SOURCESDIRECTORY\MgmtGroup"
-
-}
-else
-{
-    $path = "$pwd\MgmtGroup"
-}
-
-Write-Host "Using Source Path: $path"
-
-
+<#
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
    Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
 }
+#>
 
 
 #Import-Module AzureRM.ManagementGroups -Force
-Import-Module "$env:BUILD_REPOSITORY_LOCALPATH\Common.psm1"
+
+Get-Module -ListAvailable
+
+Import-Module "$path\Common.psm1"
 
 $falgDeleteIfNecessary = $false
 
 #Ensure-AzureIaC4VDCMgmtandSubscriptions -path  "$pwd\MgmtGroup"
 
-
-Ensure-AzureIaC4VDCRoleDefintion  -path $path\$mgmtroot\BP -deleteifNecessary:$false
-Ensure-AzureIaC4VDCRoleAssignment  -path $path\$mgmtroot\BP -deleteifNecessary:$false
-Ensure-AzureIaC4VDCPolicyDefinitions -path $path\$mgmtroot\BP -deleteifNecessary:$false
-Ensure-AzureIaC4VDCPolicyAssignments -path $path\$mgmtroot\BP -deleteifNecessary:$false
+#Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\BP -deleteifNecessary:$false
+#Ensure-AzureIaC4VDCRoleAssignment  -path $path\MgmtGroup\$mgmtroot\BP -deleteifNecessary:$false
+Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\BP -deleteifNecessary:$false
+#Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\BP -deleteifNecessary:$false
