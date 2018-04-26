@@ -802,14 +802,15 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
 #cd C:\git\bp\MgmtGroup
 
-Import-Module Common.psm1
-
 $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
 
 #$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
 $path = "$pwd\MgmtGroup"
 
 Write-Host "Using Current Path: $path"
+
+
+Import-Module $pwd\Common.psm1
 
 
 #$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
