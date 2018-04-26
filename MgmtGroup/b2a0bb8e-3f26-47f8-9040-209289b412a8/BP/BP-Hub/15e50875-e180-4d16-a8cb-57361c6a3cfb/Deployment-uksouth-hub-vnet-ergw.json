@@ -103,9 +103,11 @@
   "variables": {
     "gwSubnetName": "GatewaySubnet",
     "gatewayType": "ExpressRoute",
-    "vnetId": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "vnetId": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
-    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]"
+    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]",
+	"location" : "[parameters('location')]",
+	"resourceGroup" : "[resourceGroup().name]"
   },
   "resources": [
     {
@@ -146,7 +148,7 @@
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]",
               "routeTable": {
-                "id": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),'Microsoft.Network/routeTables', variables('routeTableName'))]"
+                "id": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/routeTables', variables('routeTableName'))]"
               }
             }
           },
@@ -179,7 +181,7 @@
                 "id": "[variables('gatewaysubnetId')]"
               },
               "publicIpAddress": {
-                "id": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),'Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
+                "id": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
               }
             }
           }
