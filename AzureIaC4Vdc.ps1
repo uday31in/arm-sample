@@ -808,11 +808,19 @@ $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
 $path = "$pwd\MgmtGroup"
 
 Write-Host "Using Current Path: $path"
+dir
 
 
+
+if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
+    Write-Host "Module exists"
+} else {
+   Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
+}
+
+Import-Module AzureRM.ManagementGroups
 Import-Module $pwd\Common.psm1
-Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
-Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
 
 
 
