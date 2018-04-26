@@ -1,0 +1,45 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "bp-uks-hub-vnet"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.12.0.0/24"
+    },
+    "subnet1Name": {
+      "value": "subnet1"
+    },
+    "subnet1Prefix": {
+      "value": "10.12.0.0/26"
+    },
+    "gwSubnetPrefix": {
+      "value": "10.12.0.192/26"
+    },
+    "gwName": {
+      "value": "bp-uks-hub-ergw"
+    },
+    "sku": {
+      "value": "Standard"
+    },
+    "gatewayPublicIpName": {
+      "value": "bp-uks-hub-ergw-ip"
+    },
+    "destinationAddressPrefix": {
+      "value": "10.4.0.0/24"
+    },
+    "nextHopIpAddress": {
+      "value": "10.4.0.4"
+    },
+    "subscriptionId": {
+      "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
+    },
+    "resourceGroup": {
+      "value": "bp-uks-hub"
+    },
+    "location": {
+      "value": "uksouth"
+    }
+  }
+}

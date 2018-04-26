@@ -1,0 +1,203 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "VNet1",
+      "metadata": {
+        "description": "VNet name"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "VNet address prefix"
+      }
+    },
+    "subnet1Prefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Subnet 1 Prefix"
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "defaultValue": "Subnet1",
+      "metadata": {
+        "description": "Subnet 1 Name"
+      }
+    },
+    "gwSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/27",
+      "metadata": {
+        "description": "Gateway Subnet address prefix"
+      }
+    },
+    "gwName": {
+      "type": "string",
+      "defaultValue": "ERGW",
+      "metadata": {
+        "description": "ExpressRoute Gateway Name"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "HighPerformance",
+        "UltraPerformance"
+      ],
+      "metadata": {
+        "description": "ExpressRoute Gateway SKU"
+      }
+    },
+    "gatewayPublicIpName": {
+      "type": "string",
+      "defaultValue": "ERGW-PIP",
+      "metadata": {
+        "description": "Name of the new public IP address for the gateway"
+      }
+    },
+    "destinationAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address prefix of the target hub"
+      }
+    },
+    "nextHopIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP address of the NVA in the remote hub"
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription ID where the hub will be deployed"
+      }
+    },
+    "resourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group where the hub will be deployed"
+      }
+    },
+    "location": {
+      "type": "string",
+      "allowedValues": [
+        "westus2",
+        "canadacentral",
+        "uksouth"
+      ],
+      "metadata": {
+        "description": "Azure region where the hub will be deployed"
+      }
+    }
+  },
+  "variables": {
+    "gwSubnetName": "GatewaySubnet",
+    "gatewayType": "ExpressRoute",
+    "vnetId": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
+    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('routeTableName')]",
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2017-10-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "routes": [
+          {
+            "name": "routeToNVA",
+            "properties": {
+              "addressPrefix": "[parameters('destinationAddressPrefix')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/routeTables/', variables('routeTableName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1Prefix')]",
+              "routeTable": {
+                "id": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),'Microsoft.Network/routeTables', variables('routeTableName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('gwSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('gwSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "name": "[parameters('gwName')]",
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('gatewayPublicIpName'))]"
+      ],
+      "properties": {
+        "gatewayType": "[variables('gatewayType')]",
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('gatewaysubnetId')]"
+              },
+              "publicIpAddress": {
+                "id": "[resourceId(parameters('subscriptionId'),parameters('resourceGroup'),'Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
+              }
+            }
+          }
+        ],
+        "sku": {
+          "name": "[parameters('sku')]",
+          "tier": "[parameters('sku')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('gatewayPublicIpName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    }
+  ]
+}
