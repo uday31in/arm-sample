@@ -236,7 +236,7 @@ function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e
         }
         #Existing role defintion but new subscription
 
-        ls -Recurse -Directory -Path C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP |%  {
+        ls -Recurse -Directory -Path $path |%  {
               
               [string]$subscriptionScope = getScope (get-item $_.FullName)
              
@@ -576,7 +576,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
 function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', $deleteifNecessary = $false)
 {
 
-    <#
+    
     $mgmtGroupList =  (Get-AzureRmManagementGroup)
 
     ls -Recurse -Directory -Path $path |%    {
@@ -615,7 +615,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', 
         
 
     }
-    #>
+    
 
     
     Get-AzureRMManagementGroup |% { 
@@ -630,8 +630,9 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', 
         if ($mgmtGroup.ParentId -eq $null)
         {
             #Root Mgmt Group
-            mkdir ($mgmtGroup.id -split '/' | select -Last 1) -Force | out-null
-            [string] $basepath =  "." + "\" 
+            mkdir ($path + "\" + ($mgmtGroup.id -split '/' | select -Last 1)) -Force | out-null
+            #[string] $basepath =  "." + "\"
+            [string] $basepath =  $path
         }
 
         else
@@ -643,7 +644,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', 
 
             if(-not $parentMgmtGroup)
             {
-                mkdir (($mgmtGroup.ParentId -split '/' | select -Last 1) +"\" + ($mgmtGroup.id -split '/' | select -Last 1)) -Force | out-null
+                mkdir ($path + "\" +($mgmtGroup.ParentId -split '/' | select -Last 1) +"\" + ($mgmtGroup.id -split '/' | select -Last 1)) -Force | out-null
 
                 $parentMgmtGroup = ls $path -Recurse -Directory -Filter ($mgmtGroup.ParentId  -split '/' | select -Last 1)
 
@@ -656,7 +657,9 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', 
                 
             }
 
-            [string] $basepath = ($parentMgmtGroup.FullName.ToString() +"\").Trim()
+            #[string] $basepath = ($parentMgmtGroup.FullName.ToString() +"\").Trim()
+            #[string] $basepath =  Join-Path $path  (($parentMgmtGroup.FullName.ToString() +"\").Trim())
+            $basepath = $parentMgmtGroup.FullName
             $basepath
 
         }
@@ -677,11 +680,11 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = 'C:\git\bp\MgmtGroup', 
                 {
                     #Creating Children
 
-                    Write-host $basepath
-                    Write-host ($mgmtGroup.id -split '/' | select -Last 1)
+                    Write-host "Basepath: $basepath"
+                    Write-host "Child ID:  $($mgmtGroup.id -split '/' | select -Last 1)"
                     Write-host $childId
         
-                    mkdir (Join-Path $childllocation  -ChildPath $childId) -Force | out-null
+                    mkdir  (Join-Path $childllocation  -ChildPath $childId) -Force | out-null
 
                 }
                 else
@@ -802,17 +805,18 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
 #cd C:\git\bp\
 
+$mgmtroot = 'b2a0bb8e-3f26-47f8-9040-209289b412a8'
 $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
+$mgmtSubscriptionPath = "$path\$mgmtroot\BP\$mgmtSubscriptionID"
 
 #$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
 
 
 Write-Host "Using Current Path: $path"
-Write-Host "$env:BUILD_REPOSITORY_LOCALPATH"
-Write-Host "$env:BUILD_SOURCESDIRECTORY"
-Write-Host "$env:path"
+Write-Host "mgmtSubscriptionPath: $mgmtSubscriptionPath"
+Write-Host "BUILD_REPOSITORY_LOCALPATH: $env:BUILD_REPOSITORY_LOCALPATH"
+Write-Host "BUILD_SOURCESDIRECTORY: $env:BUILD_SOURCESDIRECTORY"
 
-dir $env:BUILD_REPOSITORY_LOCALPATH
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
@@ -827,9 +831,6 @@ else
 
 Write-Host "Using Source Path: $path"
 
-$mgmtSubscriptionPath = Join-Path "$pwd\MgmtGroup\bp" "$mgmtSubscriptionID"
-
-
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists"
@@ -842,21 +843,12 @@ if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
 Import-Module AzureRM.ManagementGroups -Force
 Import-Module $pwd\Common.psm1
 
-
-
-#$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
-
-
 $falgDeleteIfNecessary = $false
 
+#Ensure-AzureIaC4VDCMgmtandSubscriptions -path  "$pwd\MgmtGroup"
 
-Ensure-AzureIaC4VDCMgmtandSubscriptions -path $path
 
-
-#Ensure-AzureIaC4VDCRoleDefintion  -path $path -deleteifNecessary:$true
-#Ensure-AzureIaC4VDCRoleAssignment  -path $path -deleteifNecessary:$true
-
-#Ensure-AzureIaC4VDCPolicyDefinitions -path $path -deleteifNecessary:$true
-#Ensure-AzureIaC4VDCPolicyAssignments -path $path -deleteifNecessary:$true
-
-#Ensure-AzureIaC4VDCTemplateDeployment -path $path
+Ensure-AzureIaC4VDCRoleDefintion  -path $path\$mgmtroot\BP -deleteifNecessary:$false
+Ensure-AzureIaC4VDCRoleAssignment  -path $path\$mgmtroot\BP -deleteifNecessary:$false
+Ensure-AzureIaC4VDCPolicyDefinitions -path $path\$mgmtroot\BP -deleteifNecessary:$false
+Ensure-AzureIaC4VDCPolicyAssignments -path $path\$mgmtroot\BP -deleteifNecessary:$false
