@@ -800,18 +800,25 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
 }
 
-cd C:\git\bp\MgmtGroup
-Import-Module ..\Common.psm1
-#rm C:\git\bp\MgmtGroup\* -Force -Recurse -Confirm:$false
+#cd C:\git\bp\MgmtGroup
+
+Import-Module Common.psm1
+
 $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
 
-$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
-$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
+#$path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP"
+$path = "$pwd\MgmtGroup"
+
+Write-Host "Using Current Path: $path"
+
+
+#$mgmtSubscriptionPath = Join-Path "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP" "$mgmtSubscriptionID"
+$mgmtSubscriptionPath = Join-Path "$pwd\MgmtGroup\bp" "$mgmtSubscriptionID"
 
 $falgDeleteIfNecessary = $false
 
 
-Ensure-AzureIaC4VDCMgmtandSubscriptions
+Ensure-AzureIaC4VDCMgmtandSubscriptions -path $path
 
 
 #Ensure-AzureIaC4VDCRoleDefintion  -path $path -deleteifNecessary:$true
