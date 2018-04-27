@@ -82,29 +82,6 @@
             "metadata": {
                 "description": "Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
             }
-        },
-        "resourceGroup": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource group where the VNet is located"
-            }
-        },
-        "subscriptionId": {
-            "type": "string",
-            "metadata": {
-                "description": "Subscription ID where the VNet is located"
-            }
-        },
-        "location": {
-            "type": "string",
-            "allowedValues": [
-                "westus2",
-                "canadacentral",
-                "uksouth"
-            ],
-            "metadata": {
-                "description": "Azure region where the hub will be deployed"
-            }
         }
     },
     "resources": [

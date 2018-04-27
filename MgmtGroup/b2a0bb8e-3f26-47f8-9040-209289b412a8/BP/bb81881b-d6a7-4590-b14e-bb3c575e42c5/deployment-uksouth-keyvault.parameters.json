@@ -9,19 +9,10 @@
         "value": "643c93b7-85df-4ea0-8a11-ce3f176785cf"
       },
       "secretsPermissions": {
-          "value": "get"
+          "value": ["get", "list"]
       },
       "enabledForTemplateDeployment": {
           "value": true
-      },
-      "resourceGroup": {
-          "value": "octanekeyvault"
-      },
-      "subscriptionId": {
-          "value": "bb81881b-d6a7-4590-b14e-bb3c575e42c5"
-      },
-      "location": {
-          "value": "uksouth"
       }
     }
   }
