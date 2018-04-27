@@ -1,0 +1,27 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "keyVaultName": {
+        "value": "octanekeyvault"
+      },
+      "objectId": {
+        "value": "643c93b7-85df-4ea0-8a11-ce3f176785cf"
+      },
+      "secretsPermissions": {
+          "value": "get"
+      },
+      "enabledForTemplateDeployment": {
+          "value": true
+      },
+      "resourceGroup": {
+          "value": "octanekeyvault"
+      },
+      "subscriptionId": {
+          "value": "bb81881b-d6a7-4590-b14e-bb3c575e42c5"
+      },
+      "location": {
+          "value": "uksouth"
+      }
+    }
+  }

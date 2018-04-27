@@ -34,10 +34,7 @@
     },
     "subscriptionId": {
       "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
-    },
-    "resourceGroup": {
-      "value": "bp-uks-hub"
-    },
+    },    
     "location": {
       "value": "uksouth"
     }

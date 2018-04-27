@@ -82,12 +82,6 @@
         "description": "Subscription ID where the hub will be deployed"
       }
     },
-    "resourceGroup": {
-      "type": "string",
-      "metadata": {
-        "description": "Resource group where the hub will be deployed"
-      }
-    },
     "location": {
       "type": "string",
       "allowedValues": [
@@ -103,18 +97,16 @@
   "variables": {
     "gwSubnetName": "GatewaySubnet",
     "gatewayType": "ExpressRoute",
-    "vnetId": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "vnetId": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
-    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]",
-	"location" : "[parameters('location')]",
-	"resourceGroup" : "[resourceGroup().name]"
+    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]"    
   },
   "resources": [
     {
       "name": "[variables('routeTableName')]",
       "type": "Microsoft.Network/routeTables",
       "apiVersion": "2017-10-01",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "properties": {
         "routes": [
           {
@@ -132,7 +124,7 @@
       "apiVersion": "2017-10-01",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/routeTables/', variables('routeTableName'))]"
       ],
@@ -148,7 +140,7 @@
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]",
               "routeTable": {
-                "id": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/routeTables', variables('routeTableName'))]"
+                "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/routeTables', variables('routeTableName'))]"
               }
             }
           },
@@ -165,7 +157,7 @@
       "apiVersion": "2017-10-01",
       "name": "[parameters('gwName')]",
       "type": "Microsoft.Network/virtualNetworkGateways",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', parameters('gatewayPublicIpName'))]"
@@ -181,7 +173,7 @@
                 "id": "[variables('gatewaysubnetId')]"
               },
               "publicIpAddress": {
-                "id": "[resourceId(parameters('subscriptionId'),variables('resourceGroup'),'Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
+                "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIpName'))]"
               }
             }
           }
@@ -196,7 +188,7 @@
       "apiVersion": "2016-03-30",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('gatewayPublicIpName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
