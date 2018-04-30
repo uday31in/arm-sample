@@ -7,7 +7,7 @@
 
 )
 
-    #Import-Module "$path\Common.psm1" -Force
+    Import-Module "$path\Common.psm1" -Force
 
     $mgmtroot = 'Mgmt-Tenant Root Group'
     $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
@@ -30,6 +30,7 @@
     Write-Host "BUILD_REPOSITORY_LOCALPATH: $env:BUILD_REPOSITORY_LOCALPATH"
     Write-Host "BUILD_SOURCESDIRECTORY: $env:BUILD_SOURCESDIRECTORY"
     
+    Write-Host "falgDeleteIfNecessary : $falgDeleteIfNecessary"
 
     if($MgmtandSubscriptions)
     {

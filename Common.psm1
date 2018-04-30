@@ -1,5 +1,13 @@
-﻿$global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
+﻿if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
+    Write-Host "Module exists"
+} else {
+   Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
+}
 
+Import-Module AzureRM.ManagementGroups -Force
+
+$global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
 
 function Get-ScriptDirectory { Split-Path $MyInvocation.ScriptName }
 
