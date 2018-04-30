@@ -3,6 +3,7 @@
 [switch] $MgmtandSubscriptions,
 [switch] $IAM,
 [switch] $Policy, 
+[switch] $TemplateDeployment, 
 [bool] $falgDeleteIfNecessary
 
 )
@@ -61,5 +62,15 @@
         Write-Host "AzureIaC4VDCPolicyDefinitions : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
         Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
+
+    }
+
+    
+    if($TemplateDeployment)
+    {
+
+        Write-Host "Deployment : $falgDeleteIfNecessary"
+        Ensure-AzureIaC4VDCTemplateDeployment -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
+        
 
     }
