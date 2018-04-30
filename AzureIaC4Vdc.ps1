@@ -49,9 +49,10 @@
     {
 
         Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"
-
-        
         Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
+
+
+        Write-Host "AzureIaC4VDCRoleAssignment : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCRoleAssignment  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
     }
 
@@ -61,6 +62,8 @@
 
         Write-Host "AzureIaC4VDCPolicyDefinitions : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
+
+        Write-Host "AzureIaC4VDCPolicyAssignments : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
 
     }
@@ -69,7 +72,7 @@
     if($TemplateDeployment)
     {
 
-        Write-Host "Deployment : $falgDeleteIfNecessary"
+        Write-Host "AzureIaC4VDCTemplateDeployment : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCTemplateDeployment -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
         
 
