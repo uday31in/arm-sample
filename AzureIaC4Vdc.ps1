@@ -35,7 +35,7 @@
     {
 
         Write-Host "AzureIaC4VDCMgmtandSubscriptions : $falgDeleteIfNecessary"
-        Ensure-AzureIaC4VDCMgmtandSubscriptions -path  "$path\MgmtGroup" -deleteifNecessary:$true
+        Ensure-AzureIaC4VDCMgmtandSubscriptions -path  "$path\MgmtGroup" -deleteifNecessary:$falgDeleteIfNecessary
     }
 
     
@@ -45,8 +45,8 @@
         Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"
 
         
-        Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$false
-        Ensure-AzureIaC4VDCRoleAssignment  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$false
+        Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
+        Ensure-AzureIaC4VDCRoleAssignment  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
     }
 
     
@@ -54,7 +54,7 @@
     {
 
         Write-Host "AzureIaC4VDCPolicyDefinitions : $falgDeleteIfNecessary"
-        #Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$false
-        Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$false
+        Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
+        Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
 
     }

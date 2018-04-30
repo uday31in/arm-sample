@@ -28,6 +28,7 @@ az account set --subscription "BP Service (Spoke)"
 rgname="bp-wus2-spoke-ase"
 location="westus2"
 az group create --name "$rgname" --location $location
+<<<<<<< Updated upstream
 az group deployment create --name  "$rgname-spoke-ase-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
 
 #creating ASP
@@ -83,6 +84,45 @@ az group deployment create --name  "$rgname-hub-network-deployment" --resource-g
 
 # Creating OMS Workspace - to do (do not have AAD admin right to create SPN)
 rgname="oms-workspace"
+=======
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
+
+
+# Creating DC 
+
+az account set --subscription "BP Shared Services Hub"
+rgname="bp-wus2-hub-domaincontroller"
+location="westus2"
+az group create --name "$rgname" --location $location
+
+
+#creating App1
+az account set --subscription "BP Service (Spoke)"
+rgname="app1"
+location="westus2"
+az group create --name "$rgname" --location $location
+az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/ase/azuredeploy.json --parameters /data/mgmt/ase/azuredeploy.parameters.json
+
+
+
+# Creating OMS Workspace - to do (do not have AAD admin right to create SPN)
+rgname="oms-workspace"
+location="westcentralus"
+
+
+
+
+
+
+# Creating RG
+
+az ad group create
+
+
+#Creating NIC with dynamic IP
+az account set --subscription "BP Service (Spoke)"
+rgname="bp-dynamicnic"
+>>>>>>> Stashed changes
 location="westcentralus"
 
 
@@ -99,6 +139,7 @@ az group create --name "$rgname" --location $location
 az group deployment create --name  "$rgname-nic-deployment" --resource-group "$rgname" --template-file /data/app-patterns/static-ip/staticip.json
 
 
+<<<<<<< Updated upstream
 
 
 #Creating Role Definition
@@ -107,6 +148,8 @@ az role definition create --role-definition @/data/mgmt/rbac-role-definition/app
 
 
 
+=======
+>>>>>>> Stashed changes
 az storage account create \
   --name bpeventstorage \
   --location westcentralus \
