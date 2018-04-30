@@ -444,9 +444,11 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 }
 
 
-function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", $deleteifNecessary=$false)
+function Ensure-AzureIaC4VDCRoleDefintion ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
+                                            $deleteifNecessary=$false,
+                                            $mgmtSubscriptionID = "")
 {
-
+    #In Theory Roledefintion should only be specified in management subscription level only.
     Get-ChildItem -Path $path -Recurse -Include RoleDefintion-*.json |% {
 
      [string]$effectiveScope = getScope (get-item $_.PSParentPath)
