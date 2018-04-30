@@ -461,6 +461,8 @@ function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e
           
      #$RoleDefintionJson | ConvertTo-Json |Out-File -FilePath $model -Force
         
+        Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
+
         $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID"  -Name $RoleDefintionJson.Name 
         if(-not $RoleDefintion)
         {
@@ -509,8 +511,12 @@ function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e
             Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
 
             $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
+
+            Write-Host "Role Definition Created Successfully at scope /subscriptions/$mgmtSubscriptionID"
         }
         #Existing role defintion but new subscription
+
+
 
         ls -Recurse -Directory -Path $path |%  {
               
@@ -518,7 +524,7 @@ function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e
              
               if($subscriptionScope.StartsWith('/subscriptions/'))
               {
-                Write-Host $subscriptionScope
+                    Write-Host "Adding $subscriptionScope to existing $($RoleDefintion.name)"
 
                     if(-not $RoleDefintion.AssignableScopes.Contains("$subscriptionScope"))
                     {
@@ -530,9 +536,11 @@ function Ensure-AzureIaC4VDCRoleDefintion ($path = "C:\git\bp\MgmtGroup\b2a0bb8e
         }
 
         $updatedRoleDefinition = Set-AzureRmRoleDefinition -Role $RoleDefintion
+        Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
     
         #Updating rolde defintion file to reflect new scopes
         $updatedRoleDefinition | ConvertTo-Json -Depth 10 | Out-File $model  -Force
+        Write-Host "Updated Role Definition at scope $model"
      
     }
 
