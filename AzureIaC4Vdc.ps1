@@ -7,7 +7,7 @@
 
 )
 
-    Import-Module "$path\Common.psm1" -Force
+   
 
     $mgmtroot = 'Mgmt-Tenant Root Group'
     $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
@@ -23,6 +23,10 @@
         $path = "c:\git\bp"
     }
 
+
+
+
+    Import-Module "$path\Common.psm1" -Force
     $mgmtSubscriptionPath = "$path\MgmtGroup\$mgmtroot\Mgmt-BP\Sub-BP Mgmt Subscription"
 
     Write-Host "Using Current Path: $path"
