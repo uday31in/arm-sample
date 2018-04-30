@@ -284,9 +284,11 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             [string]$effectiveScope = getScope (get-item $_.PSParentPath)
             Write-Host $effectiveScope
-            Write-Host $_.Name
+            Write-Host $_.FullName
 
             #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\RoleAssignment-Uday Pandya.json"
+
+
             $model = $_.FullName
             $model = get-item $model
 
@@ -314,10 +316,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             if(-not $RmRoleAssignment)
             {
 
-                 Write-Host "Scope: $effectiveScope Missing user " + $_objectid  +  $_roledefinitionid
-                 New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
-
-                
+                              
                 ##############################################################################
                 #Work around until RBAC at managemnt group is inherited to subscriotion level#
                 ##############################################################################
@@ -328,7 +327,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                     
                     ls -Recurse -Directory -Path  (get-item $_.PSParentPath) |%  {
 
+                            
                             [string]$subscriptionScope = getScope (get-item $_.FullName)
+                                                    
+                            
                             if($subscriptionScope.StartsWith('/subscriptions/'))
                             {
 
@@ -346,7 +348,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                     
                 }
 
-                <#
+                
                 else
                 {
             
@@ -354,7 +356,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                     New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
 
                 }
-                #>
+                
             }
     }
 
