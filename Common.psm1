@@ -644,7 +644,11 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
         #$effectiveScope = '/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0'
         #$policydefinitionID = '/providers/Microsoft.Management/managementGroups/BP/providers/Microsoft.Authorization/policyDefinitions/routeTablePolicy'
     
-        #write-host  "Scope: $($effectiveScope)$($policydefinitionID)" 
+        write-host  "PolicyAssignmentAtScope: $($effectiveScope)$($policydefinitionID)" 
+
+
+
+
         $asc_uri=  "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyassignments?api-version=2017-06-01-preview&`$filter=policyDefinitionId eq '$policydefinitionID'"
         $asc_requestHeader = @{
             Authorization = "Bearer $(getAccessToken)"
@@ -735,10 +739,11 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
     $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
 
     Write-Host "Count of Effective Path: $($effectivepath.Count)"
-    
     $effectivepath |%{ 
 
+        [string]$effectiveScope = getScope (get-item $_.FullName)
         Write-Host "Effective Path: $_"
+        Write-Host "effectiveScope : $effectiveScope"
 
     }
 
@@ -757,6 +762,8 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
         $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
         $policyDefinitions = ($response.content | ConvertFrom-Json).Value
+
+        Write-Host "Retriving Policy Definitions from $asc_uri"
     
  
         $policyDefinitions |% {
