@@ -771,7 +771,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
  
         $policyDefinitions |% {
 
-            write-host  "Scope: $($effectiveScope)/$($_.properties.displayName)" 
+            #write-host  "Scope: $($effectiveScope)/$($_.properties.displayName)" 
             Write-PolicyAssignmentAtScope -path (get-item $localdirectory) -effectiveScope $effectiveScope -policydefinitionID $_.id -deleteifNecessary:$deleteifNecessary
     
         } 
