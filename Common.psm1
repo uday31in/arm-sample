@@ -347,12 +347,18 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
 
                                 Write-Host $subscriptionScope
-                                Write-Host "Scope: $subscriptionScope Missing user " + $RoleAssignmentJson.properties.principalId   +  $_roledefinitionid
-                                New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
+                                
+                                $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
+                                if($assignment -eq $null)
+                                {
+                                    Write-Host "Missing AzureRmRoleAssignment for Scope: $subscriptionScope Missing user principalId: $($RoleAssignmentJson.properties.principalId) and _roledefinitionid: $($_roledefinitionid)" 
+                                    New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
+
+                                }
                                 #copy Assignment file to Subscirption so that it doesnt get deleted
 
-                                copy $model $_.FullName
+                                copy $model $_.FullName -Force
 
                             }
 
