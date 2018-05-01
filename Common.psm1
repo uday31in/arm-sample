@@ -9,6 +9,14 @@ Import-Module AzureRM.ManagementGroups -Force
 
 $global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
 
+$AzureRmManagementGroup |% {
+
+    Write-Host "Mgmt Group Name: $($_.Name) ID: $($_.Id)"
+
+}
+
+
+
 function Get-ScriptDirectory { Split-Path $MyInvocation.ScriptName }
 
 function getScope([System.io.DirectoryInfo] $name)
@@ -644,10 +652,7 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
         #$effectiveScope = '/subscriptions/0a938bc2-0bb8-4688-bd37-9964427fe0b0'
         #$policydefinitionID = '/providers/Microsoft.Management/managementGroups/BP/providers/Microsoft.Authorization/policyDefinitions/routeTablePolicy'
     
-        write-host  "PolicyAssignmentAtScope: $($effectiveScope)$($policydefinitionID)" 
-
-
-
+        write-host  "Scope: $($effectiveScope)$($policydefinitionID)" 
 
         $asc_uri=  "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyassignments?api-version=2017-06-01-preview&`$filter=policyDefinitionId eq '$policydefinitionID'"
         $asc_requestHeader = @{
@@ -672,10 +677,8 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
                  Write-Host "Deleting PolicyAssignmentAtScope at $policyAssignmentFilename"
 
                  $asc_uri=  "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyassignments/$($_.Name)?api-version=2017-06-01-preview&`$filter=policyDefinitionId eq '$policydefinitionID'"
-
                  Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-
-                
+        
             }
             else
             {
