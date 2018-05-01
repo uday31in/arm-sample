@@ -1,8 +1,10 @@
 ﻿param
 (
 [switch] $MgmtandSubscriptions,
-[switch] $IAM,
-[switch] $Policy, 
+[switch] $RoleDefintion,
+[switch] $RoleAssignment,
+[switch] $PolicyDefinition,
+[switch] $PolicyAssignment, 
 [switch] $TemplateDeployment, 
 [bool] $falgDeleteIfNecessary
 
@@ -45,11 +47,14 @@
     }
 
     
-    if($IAM)
+    if($RoleDefintion)
     {
 
         Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
+    }
+    if($RoleAssignment)
+    {
 
 
         Write-Host "AzureIaC4VDCRoleAssignment : $falgDeleteIfNecessary"
@@ -57,12 +62,14 @@
     }
 
     
-    if($Policy)
+    if($PolicyDefinition)
     {
 
         Write-Host "AzureIaC4VDCPolicyDefinitions : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCPolicyDefinitions -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
-
+    }
+    if($PolicyAssignment)
+    {
         Write-Host "AzureIaC4VDCPolicyAssignments : $falgDeleteIfNecessary"
         Ensure-AzureIaC4VDCPolicyAssignments -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
 
