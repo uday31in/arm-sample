@@ -379,8 +379,9 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
     }
 
 
-    [array] $effectivepath  = (Get-Item -Path $path)
+    Write-host "AzureIaC4VDCRoleAssignment - Push Completed"
 
+    [array] $effectivepath  = (Get-Item -Path $path)
     $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
 
     $effectivepath  |% {
@@ -394,10 +395,14 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             'Content-Type' = 'application/json'
         }
 
+        Write-Host "Retriving Role Assignment from $asc_uri"
+
         $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
         $JsonObject = ($response.content | ConvertFrom-Json).Value
     
         $JsonObject |? { $_.properties.scope -eq $effectiveScope}  |% {
+
+            Write-Host "Get-AzureRmADUser -ObjectId $($_.properties.principalId)"
 
             if($_.properties.principalType -eq 'User' )
             {
