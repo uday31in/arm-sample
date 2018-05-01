@@ -333,6 +333,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             
                             if($subscriptionScope.StartsWith('/subscriptions/'))
                             {
+                                #TODO - check for role assignment 
+                                #/subscriptions/c14f781e-159f-45b9-9538-56d9dd32d5e0
+                                #Scope: /subscriptions/c14f781e-159f-45b9-9538-56d9dd32d5e0 Missing user  + 643c93b7-85df-4ea0-8a11-ce3f176785cf + 8e3af657-a8ff-443c-a75c-2fe8c4bcb635
+
 
                                 Write-Host $subscriptionScope
                                 Write-Host "Scope: $subscriptionScope Missing user " + $RoleAssignmentJson.properties.principalId   +  $_roledefinitionid
@@ -456,7 +460,7 @@ function Ensure-AzureIaC4VDCRoleDefintion ( $path = "C:\git\bp\MgmtGroup\b2a0bb8
 
      [string]$effectiveScope = getScope (get-item $_.PSParentPath)
      Write-Host $effectiveScope
-     Write-Host $_.Name
+     Write-Host $_.FullName
 
      #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\bb81881b-d6a7-4590-b14e-bb3c575e42c5\RoleDefintion-BP App DevOps-u4.json"
      $model = $_.FullName
@@ -693,7 +697,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
         [string]$effectiveScope = getScope (get-item $_.PSParentPath)
         Write-Host $effectiveScope
-        Write-Host $_.Name
+        Write-Host $_.FullName
 
         #$model =  get-item "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\PolicyAssignment-routeTablePolicy.json"
         $model = $_.FullName
@@ -730,6 +734,16 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
     $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
 
+    Write-Host "Count of Effective Path: $($effectivepath.Count)"
+    
+    $effectivepath |%{ 
+
+        Write-Host "Effective Path: $_"
+
+    }
+
+
+
     $effectivepath  |% {
 
         [string]$effectiveScope = getScope (get-item $_.FullName)
@@ -765,7 +779,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
 
          [string]$effectiveScope = getScope (get-item $_.PSParentPath)
          Write-Host $effectiveScope
-         Write-Host $_.Name
+         Write-Host $_.FullName
 
          #$model =  get-item "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\PolicyDefintion-routeTablePolicy.json"
          $model = $_.FullName
@@ -1165,7 +1179,7 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
         [string]$effectiveScope = getScope (get-item $_.PSParentPath)
         
         Write-Host $effectiveScope
-        Write-Host $_.Name
+        Write-Host $_.FullName
 
         if($effectiveScope.StartsWith('/subscriptions/'))
         {
