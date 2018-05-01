@@ -312,6 +312,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 'Content-Type' = 'application/json'
             }
 
+            write-host "Retriving Role Assignments: $asc_uri"
+
             $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
             $JsonObject = ($response.content | ConvertFrom-Json).Value
 
@@ -320,6 +322,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                                                 $_.properties.principalId -eq $_objectid}
 
 
+            write-host "Retriving Role Assignments Successfully: $RmRoleAssignment"
 
             if(-not $RmRoleAssignment)
             {
@@ -376,6 +379,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 }
                 
             }
+            Write-Host "Success! $($_.FullName)"
     }
 
 
