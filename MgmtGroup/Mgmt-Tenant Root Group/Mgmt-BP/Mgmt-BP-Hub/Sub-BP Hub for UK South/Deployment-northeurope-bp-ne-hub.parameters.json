@@ -3,40 +3,46 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
-      "value": "bp-uks-hub-vnet"
+      "value": "bp-ne-hub-vnet"
     },
     "vnetAddressPrefix": {
-      "value": "10.12.0.0/24"
+      "value": "10.4.0.0/23"
     },
     "subnet1Name": {
-      "value": "subnet1"
+      "value": "NVASubnet"
     },
     "subnet1Prefix": {
-      "value": "10.12.0.0/26"
+      "value": "10.4.0.0/26"
     },
     "gwSubnetPrefix": {
-      "value": "10.12.0.192/26"
+      "value": "10.4.0.192/26"
+    },
+    "secureGWSubnetPrefix": {
+      "value": "10.4.1.0/24"
     },
     "gwName": {
-      "value": "bp-uks-hub-ergw"
+      "value": "bp-ne-hub-ergw"
     },
     "sku": {
       "value": "Standard"
     },
     "gatewayPublicIpName": {
-      "value": "bp-uks-hub-ergw-ip"
+      "value": "bp-ne-hub-ergw-ip"
+    },
+    "routeTableName": {
+      "value": "bp-ne-hub-nvasubnet-routetable"
     },
     "destinationAddressPrefix": {
-      "value": "10.4.0.0/24"
+      "value": "10.8.0.0/24"
     },
     "nextHopIpAddress": {
-      "value": "10.4.0.4"
+      "value": "10.8.0.4"
     },
     "subscriptionId": {
       "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
     },    
     "location": {
-      "value": "uksouth"
+      "value": "northeurope"
     }
   }
 }

@@ -34,7 +34,14 @@
       "type": "string",
       "defaultValue": "10.0.0.0/27",
       "metadata": {
-        "description": "Gateway Subnet address prefix"
+        "description": "Gateway subnet address prefix"
+      }
+    },
+    "secureGWSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Secure gateway subnet address prefix"
       }
     },
     "gwName": {
@@ -64,6 +71,12 @@
         "description": "Name of the new public IP address for the gateway"
       }
     },
+    "routeTableName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the route table in the NVA subnet"
+      }
+    },
     "destinationAddressPrefix": {
       "type": "string",
       "metadata": {
@@ -85,9 +98,10 @@
     "location": {
       "type": "string",
       "allowedValues": [
-        "westus2",
-        "canadacentral",
-        "uksouth"
+        "northeurope",
+        "westeurope",
+        "usnorthcentral",
+        "ussouthcentral"
       ],
       "metadata": {
         "description": "Azure region where the hub will be deployed"
@@ -96,14 +110,14 @@
   },
   "variables": {
     "gwSubnetName": "GatewaySubnet",
+    "secureGWSubnetName": "SecureGatewaySubnet",
     "gatewayType": "ExpressRoute",
     "vnetId": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
-    "routeTableName": "[concat(parameters('subnet1Name'), '-routetable')]"    
+    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]"    
   },
   "resources": [
     {
-      "name": "[variables('routeTableName')]",
+      "name": "[parameters('routeTableName')]",
       "type": "Microsoft.Network/routeTables",
       "apiVersion": "2017-10-01",
       "location": "[parameters('location')]",
@@ -126,7 +140,7 @@
       "name": "[parameters('vnetName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/routeTables/', variables('routeTableName'))]"
+        "[concat('Microsoft.Network/routeTables/', parameters('routeTableName'))]"
       ],
       "properties": {
         "addressSpace": {
@@ -140,7 +154,7 @@
             "properties": {
               "addressPrefix": "[parameters('subnet1Prefix')]",
               "routeTable": {
-                "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/routeTables', variables('routeTableName'))]"
+                "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/routeTables', parameters('routeTableName'))]"
               }
             }
           },
@@ -148,6 +162,12 @@
             "name": "[variables('gwSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('gwSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('secureGWSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('secureGWSubnetPrefix')]"
             }
           }
         ]
