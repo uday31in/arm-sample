@@ -291,6 +291,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             ## Role Assignments can be done at subscription level only
 
+            Write-Host "----------------------------------------------------------------"
+
             [string]$effectiveScope = getScope (get-item $_.PSParentPath)
             Write-Host $effectiveScope
             Write-Host $_.FullName
@@ -323,6 +325,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                                                 $_.properties.principalId -eq $_objectid}
 
 
+            
+
             write-host "Retriving Role Assignments Successfully: $RmRoleAssignment"
 
             if(-not $RmRoleAssignment)
@@ -345,20 +349,20 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             
                             if($subscriptionScope.StartsWith('/subscriptions/'))
                             {
-                                #TODO - check for role assignment 
-                                #/subscriptions/c14f781e-159f-45b9-9538-56d9dd32d5e0
-                                #Scope: /subscriptions/c14f781e-159f-45b9-9538-56d9dd32d5e0 Missing user  + 643c93b7-85df-4ea0-8a11-ce3f176785cf + 8e3af657-a8ff-443c-a75c-2fe8c4bcb635
-
+                             
+                                Write-Host "Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid"
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
                                 Write-Host "subscriptionScope: $subscriptionScope assignment: $assignment"
 
                                 if($assignment -eq $null)
                                 {
-                                    Write-Host "Missing AzureRmRoleAssignment for Scope: $subscriptionScope Missing user principalId: $($RoleAssignmentJson.properties.principalId) and _roledefinitionid: $($_roledefinitionid)" 
+                                    Write-Host "Missing AzureRmRoleAssignment for Scope: New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid " 
                                     
                                     Get-AzureRmContext
                                     New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
+
+                                    
 
                                 }
                                 #copy Assignment file to Subscirption so that it doesnt get deleted
@@ -392,8 +396,9 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             Write-Host "Success! $($_.FullName)"
     }
 
-
+    Write-Host "***********************************************"
     Write-host "AzureIaC4VDCRoleAssignment - Push Completed"
+    Write-Host "***********************************************"
 
     [array] $effectivepath  = (Get-Item -Path $path)
     $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
