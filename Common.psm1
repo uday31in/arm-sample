@@ -2,7 +2,7 @@
     Write-Host "Module exists"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
-   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
+   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser
 }
 
 Import-Module AzureRM.ManagementGroups -Force
@@ -349,7 +349,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                                 #Scope: /subscriptions/c14f781e-159f-45b9-9538-56d9dd32d5e0 Missing user  + 643c93b7-85df-4ea0-8a11-ce3f176785cf + 8e3af657-a8ff-443c-a75c-2fe8c4bcb635
 
 
-                                Write-Host $subscriptionScope
+                                Write-Host "subscriptionScope: $subscriptionScope"
                                 
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
