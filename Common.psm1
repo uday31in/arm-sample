@@ -340,7 +340,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                 if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
                 {
-                    
+                    <#
+
+                    Disabling. Assign RBAC assignment at subscription level directly.
+
                     ls -Recurse -Directory -Path  (get-item $_.PSParentPath) |%  {
 
                             
@@ -374,6 +377,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
+                    #>
                     
                 }
 
@@ -381,7 +385,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 else
                 {
             
-                    Write-Host "Scope: $effectiveScope Missing user " + $_objectid  +  $_roledefinitionid
+                    Write-Host "Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
 
                     $assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
                     if($assignment -eq $null)

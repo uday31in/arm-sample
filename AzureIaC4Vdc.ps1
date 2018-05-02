@@ -6,7 +6,8 @@
 [switch] $PolicyDefinition,
 [switch] $PolicyAssignment, 
 [switch] $TemplateDeployment, 
-[bool] $falgDeleteIfNecessary
+[bool] $falgDeleteIfNecessary.
+[string] $pathtoManangementGroup = "MgmtGroup\$mgmtroot\Mgmt-BP"
 
 )
 
