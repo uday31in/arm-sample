@@ -343,7 +343,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                     
 
                    
-
+                    <#
                     ls -Recurse -Directory -Path  (get-item $_.PSParentPath) |%  {
 
                             
@@ -377,6 +377,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
+                    #>
                    
                     
                 }
