@@ -351,6 +351,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             {
                              
                                 Write-Host "Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid"
+                                
+                                $DebugPreference="Continue"
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
                                 Write-Host "subscriptionScope: $subscriptionScope assignment: $assignment"
