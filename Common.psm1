@@ -420,7 +420,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             $roldefinition =  (Get-AzureRmRoleDefinition -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
             
-            $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$aaduser-$roldefinition.json"))
+            $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser.DisplayName)-$roldefinition.json"))
+
+
+
             
             if($deleteifNecessary -and (Test-Path $roldefinitionFilePath) -eq $false)
             {
