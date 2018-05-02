@@ -340,9 +340,9 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                 if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
                 {
-                    <#
+                    
 
-                    Disabling. Assign RBAC assignment at subscription level directly.
+                   
 
                     ls -Recurse -Directory -Path  (get-item $_.PSParentPath) |%  {
 
@@ -377,7 +377,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
-                    #>
+                   
                     
                 }
 
