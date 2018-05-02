@@ -1,4 +1,5 @@
-﻿if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
+﻿Remove-Module -Name AzureRM.Profile -Force
+if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
@@ -420,10 +421,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             $roldefinition =  (Get-AzureRmRoleDefinition -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
             
-            $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser.DisplayName)-$roldefinition.json"))
-
-
-
+            $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser)-$roldefinition.json"))
+            
             
             if($deleteifNecessary -and (Test-Path $roldefinitionFilePath) -eq $false)
             {
@@ -435,6 +434,11 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                 if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
                 {
+                    <#
+
+                    #######################################################################################
+                    #Disabling Subscription level deleteion when RBAC is removed at Management group level#
+                    #######################################################################################
                     
                     ls -Recurse -Directory -Path  $folderlocation |%  {
 
@@ -455,7 +459,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
-                    
+                    #>
                 }
 
             }
