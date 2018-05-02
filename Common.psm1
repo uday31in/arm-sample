@@ -357,7 +357,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                                 {
                                     Write-Host "Missing AzureRmRoleAssignment for Scope: $subscriptionScope Missing user principalId: $($RoleAssignmentJson.properties.principalId) and _roledefinitionid: $($_roledefinitionid)" 
                                     
-                                    Get-AzureRmSubscription
+                                    Get-AzureRmContext
                                     New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
                                 }
