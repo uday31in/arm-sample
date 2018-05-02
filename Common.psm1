@@ -2,7 +2,7 @@
     Write-Host "Module exists"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
-   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser
+   Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
 }
 
 Import-Module AzureRM.ManagementGroups -Force
