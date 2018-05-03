@@ -322,7 +322,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             $RmRoleAssignment = $JsonObject |? {$_.properties.scope -eq $effectiveScope -and 
                                                 ($_.properties.roledefinitionid).contains($_roledefinitionid) -and 
-                                                $_.properties.principalId -eq $_objectid}
+                                                  $_.properties.principalId -eq $_objectid}
 
 
             
@@ -386,7 +386,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 else
                 {
             
-                    Write-Host "Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+                    Write-Host "Line 389. Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
 
                     $assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
                     if($assignment -eq $null)
