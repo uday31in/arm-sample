@@ -6,7 +6,7 @@
         "value": "bp-ne-nva"
       },
       "adminUsername": {
-        "value": "nvaAdmin"
+        "value": "nvaadmin"
       },    
       "adminPassword": {
         "reference": {
