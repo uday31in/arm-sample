@@ -1,0 +1,30 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vNet1Name": {
+            "value": "bp-ne-hub-vnet"
+        },
+        "vNet1ResourceGroup": {
+            "value": "bp-ne-hub"
+        },
+        "vNet1subscriptionId": {
+            "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
+        },
+        "vNet1AllowGWTransit": {
+            "value": false
+        },
+        "vNet2Name": {
+            "value": "bp-ne-spoke1-vnet"
+        },
+        "vNet2ResourceGroup": {
+            "value": "bp-ne-spoke1"
+        },
+        "vNet2subscriptionId": {
+            "value": "c14f781e-159f-45b9-9538-56d9dd32d5e0"
+        },
+        "vNet2UseRemoteGW": {
+            "value": false
+        }
+    }
+}
