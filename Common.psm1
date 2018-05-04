@@ -188,7 +188,7 @@ $SubscriptionDisplayName = "BP Spoke for North Europe"
 $ManagementGroupName = "BP-Spoke"
 #>
 
-function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP-Hub-UK-South", $SubscriptionDisplayName = "BP Hub for UK South", $ManagementGroupName = "BP-Hub")
+function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub for North Europe", $SubscriptionDisplayName = "BP Hub for North Europe", $ManagementGroupName = "BP-Hub")
 {
 
         $offerType = "MS-AZR-0017P"
@@ -197,18 +197,15 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP-Hub-UK
 
         $vstsAAObjectID = (Get-AzureRmADServicePrincipal -SearchString 'iaac4dcm-cd4dcm-bb81881b-d6a7-4590-b14e-bb3c575e42c5').Id
 
-        $subscription
-        # Create Subscription
-
-
-        $subscription = Get-AzureRmSubscriptionDefinition -Name "$subscriptionName" -ErrorAction SilentlyContinue
+        $subscription = Get-AzureRmSubscription -SubscriptionName "$subscriptionName" -ErrorAction SilentlyContinue
 
         if($subscription -eq $null)
         {
-            <#
-            
+                        
             Write-Host "Creating new subscription"
             $subscription = New-AzureRmSubscriptionDefinition  -Name $subscriptionName  -OfferType $offerType -SubscriptionDisplayName $SubscriptionDisplayName
+            Write-Host "Creating new subscription Success!"
+
 
             # Assign Subscription to its Management Group .
             # $subscription =Get-AzureRmSubscriptionDefinition -Name $subscriptionName1
@@ -221,24 +218,25 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP-Hub-UK
 
         }
 
-        <#
-        New-AzureRMManagementGroup -GroupName BP-Hub
-        Update-AzureRmManagementGroup -GroupName BP-Hub -ParentObject (Get-AzureRmManagementGroup -GroupName BP)
-        New-AzureRmManagementGroup -GroupName BP-Spoke
-        Update-AzureRmManagementGroup -GroupName BP-Spoke -ParentObject (Get-AzureRmManagementGroup -GroupName BP)
-        #>
 
-        Select-AzureRmSubscription -SubscriptionId $subscription.SubscriptionId
+        $asconfig = @{
+             Uri = "https://management.azure.com/subscriptions/$($subscription.SubscriptionId)/providers/Microsoft.Security/register?api-version=2017-05-10"
+             Headers = @{
+                   Authorization = "Bearer $(getAccessToken)"
+                   'Content-Type' = 'application/json'
+                   }
+                   Method = 'POST'
+                   UseBasicParsing = $true
+                   Body = ""
+                }
 
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $currentAzureContext = Get-AzureRmContext 
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        Write-Verbose "Getting access token"
-        Write-Debug ("Getting access token for tenant" + $currentAzureContext.Subscription.TenantId)
-        $token = $profileClient.AcquireAccessToken($currentAzureContext.Subscription.TenantId)
-        $token = $token.AccessToken
+        Invoke-WebRequest @asconfig
 
+        #FIX - Subscription not registered
+        #Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Security -Debug
 
+        
+        
         $body = @{
 
             properties= @{
@@ -252,31 +250,13 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP-Hub-UK
         $asconfig = @{
              Uri = "https://management.azure.com/subscriptions/$($subscription.SubscriptionId)/providers/Microsoft.Security/workspaceSettings/default?api-version=2017-08-01-preview"
              Headers = @{
-                   Authorization = "Bearer $($token)"
+                   Authorization = "Bearer $(getAccessToken)"
                    'Content-Type' = 'application/json'
                    }
                    Method = 'Put'
                    UseBasicParsing = $true
                    Body = $body
                 }
-
-
-        #FIX - Subscription not registered
-        Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Security -Debug
-
-        <#
-        Absolute Uri:
-        https://management.azure.com/subscriptions/15e50875-e180-4d16-a8cb-57361c6a3cfb/providers/Microsoft.Security/register?api-version=2017-05-10
-
-        Headers:
-        x-ms-client-request-id        : 07b13e58-173e-41f8-98fe-05a14f13348b
-        accept-language               : en-US
-
-        Body:
-
-        #>
-
-
 
         Invoke-WebRequest @asconfig
 
@@ -972,7 +952,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
 
                         if($currentMgmtGroupParentName -ne $desiredMgmtGroupParentName)
                         {
-                            #New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
+                            Write-Host "Chanign Mgmt group from $currentMgmtGroupParentName to $desiredMgmtGroupParentName"
                             $subscriptionid = $effectiveScope -split ('/') | select -Last 1
                             New-AzureRmManagementGroupSubscription -GroupName $desiredMgmtGroupParentName -SubscriptionId $subscriptionid
                             
@@ -1003,7 +983,8 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
                         $_mgmtgroupname = ($_.Parent.BaseName -ireplace ('Mgmt-', '') )
                         $_subscriptionname = ($_.BaseName -ireplace ('Sub-', ''))
 
-                        #New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
+                        Write-Host "Calling: New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname"
+                        New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
 
                     }
 
@@ -1271,14 +1252,14 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
                     }
                 }
 
-                $deploymentname = (get-date -Format ("yyyy-MM-dd-hh-mm-ss")) + "-" + $model.BaseName  
-                $asc_uri= "https://management.azure.com/$effectiveScope/resourcegroups/$($rgname)/providers/Microsoft.Resources/deployments/$($deploymentname)?api-version=2017-05-10"
+
+                $asc_uri= "https://management.azure.com/$effectiveScope/resourcegroups/$($rgname)/providers/Microsoft.Resources/deployments/$($model.BaseName)?api-version=2017-05-10"
                 $asc_requestHeader = @{
                     Authorization = "Bearer $(getAccessToken)"
                     'Content-Type' = 'application/json'
                 }
 
-                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing
+                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
 
             }
             else

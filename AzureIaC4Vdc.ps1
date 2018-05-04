@@ -79,9 +79,7 @@ if($PolicyAssignment)
     
 if($TemplateDeployment)
 {
-
     Write-Host "AzureIaC4VDCTemplateDeployment : $falgDeleteIfNecessary"
     Ensure-AzureIaC4VDCTemplateDeployment -path $path\MgmtGroup\$mgmtroot\Mgmt-BP -deleteifNecessary:$falgDeleteIfNecessary
-        
-
+ 
 }
