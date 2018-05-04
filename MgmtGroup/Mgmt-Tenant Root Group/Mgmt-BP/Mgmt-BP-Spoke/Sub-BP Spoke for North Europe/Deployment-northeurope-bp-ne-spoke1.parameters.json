@@ -6,19 +6,19 @@
         "value": "bp-ne-spoke1-vnet"
       },
       "vnetAddressPrefix": {
-        "value": "10.4.1.0/24"
+        "value": "10.4.2.0/24"
       },    
       "subnet1Name": {
         "value": "subnet1"
       },
       "subnet1Prefix": {
-        "value": "10.4.1.0/25"
+        "value": "10.4.2.0/25"
       },
       "routeTableName": {
         "value": "bp-ne-spoke1-subnet1-routetable"
       },
       "destinationAddressPrefix": {
-        "value": "10.12.1.0/24"
+        "value": "10.12.2.0/24"
       },
       "nextHopIpAddress": {
         "value": "10.4.0.4"
