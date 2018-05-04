@@ -1,10 +1,20 @@
 ﻿Remove-Module -Name AzureRM.Profile -Force
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
-    Write-Host "Module exists"
+    Write-Host "Module exists - ManagementGroups"
 } else {
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
    Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
+   
 }
+
+if (Get-Module -ListAvailable -Name AzureRM.Subscription.Preview) {
+    Write-Host "Module exists - Subscription"
+} else {
+
+   Install-Module -Name AzureRM.Subscription.Preview -Force -Verbose -Scope CurrentUser -AllowPrerelease
+   
+}
+
 
 Import-Module AzureRM.ManagementGroups -Force
 
