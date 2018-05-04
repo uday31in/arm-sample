@@ -1271,14 +1271,14 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
                     }
                 }
 
-
-                $asc_uri= "https://management.azure.com/$effectiveScope/resourcegroups/$($rgname)/providers/Microsoft.Resources/deployments/$($model.BaseName)?api-version=2017-05-10"
+                $deploymentname = (get-date -Format ("yyyy-MM-dd-hh-mm-ss")) + "-" + $model.BaseName  
+                $asc_uri= "https://management.azure.com/$effectiveScope/resourcegroups/$($rgname)/providers/Microsoft.Resources/deployments/$($deploymentname)?api-version=2017-05-10"
                 $asc_requestHeader = @{
                     Authorization = "Bearer $(getAccessToken)"
                     'Content-Type' = 'application/json'
                 }
 
-                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing
 
             }
             else

@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "vmName": {
-        "value": "bp-ne-nva"
+        "value": "bp-uks-nva"
       },
       "adminUsername": {
-        "value": "nvaadmin"
+        "value": "nvaAdmin"
       },    
       "adminPassword": {
         "reference": {
@@ -17,19 +17,19 @@
         }
       },
       "vnetName": {
-        "value": "bp-ne-hub-vnet"
+        "value": "bp-uks-hub-vnet"
       },    
       "subnetName": {
-        "value": "NVASubnet"
+        "value": "subnet1"
       },
       "vnetResourceGroup": {
-        "value": "bp-ne-hub"
+        "value": "hub-vnet-ergw"
       },
       "vnetSubscriptionId": {
         "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
       },
       "location": {
-        "value": "northeurope"
+        "value": "uksouth"
       }      
     }
   }
