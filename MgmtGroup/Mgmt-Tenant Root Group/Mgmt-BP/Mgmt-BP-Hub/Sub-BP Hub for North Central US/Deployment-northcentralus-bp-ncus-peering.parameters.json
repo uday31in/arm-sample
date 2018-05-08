@@ -1,0 +1,30 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vNet1Name": {
+            "value": "bp-ncus-hub-vnet"
+        },
+        "vNet1ResourceGroup": {
+            "value": "bp-ncus-hub"
+        },
+        "vNet1subscriptionId": {
+            "value": "926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4"
+        },
+        "vNet1AllowGWTransit": {
+            "value": false
+        },
+        "vNet2Name": {
+            "value": "bp-ncus-spoke1-vnet"
+        },
+        "vNet2ResourceGroup": {
+            "value": "bp-ncus-spoke1"
+        },
+        "vNet2subscriptionId": {
+            "value": "0a938bc2-0bb8-4688-bd37-9964427fe0b0"
+        },
+        "vNet2UseRemoteGW": {
+            "value": false
+        }
+    }
+}
