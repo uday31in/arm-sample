@@ -994,7 +994,10 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
                         $_subscriptionname = ($_.BaseName -ireplace ('Sub-', ''))
 
                         Write-Host "Calling: New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname"
+
+                        $DebugPreference="Continue"
                         New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
+                        $DebugPreference="SilentlyContinue"
 
                     }
 
