@@ -2,7 +2,7 @@
 Write-host "Version of AzureRM.Profile Loaded in Session"
 get-module
 
-Update-Module -Name AzureRM -Force -AllowPrerelease -Confirm:$false
+#Update-Module -Name AzureRM -Force -AllowPrerelease -Confirm:$false
 
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
@@ -38,10 +38,8 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
 
 
 Import-Module AzureRM.ManagementGroups -Force
-Import-Module AzureRM.Subscription -Force
-Import-Module AzureRM.Billing -Force
-
-
+#Import-Module AzureRM.Subscription -Force
+#Import-Module AzureRM.Billing -Force
 
 
 
@@ -257,7 +255,7 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub fo
             New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId  
 
             #assigning at subscription level - as Management group level assignment do not flow to subscription
-            New-AzureRmRoleAssignment -ObjectId $vstsAAObjectID -RoleDefinitionName 'owner' -Scope "/subscriptions/$($subscription.SubscriptionId)"
+            #New-AzureRmRoleAssignment -ObjectId $vstsAAObjectID -RoleDefinitionName 'owner' -Scope "/subscriptions/$($subscription.SubscriptionId)"
 
             #>
 
@@ -526,7 +524,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 }
 
 
-function Ensure-AzureIaC4VDCRoleDefintion ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
+function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
                                             $deleteifNecessary=$false,
                                             $mgmtSubscriptionID = "",
                                             $mgmtSubscriptionPath = "")
@@ -638,7 +636,7 @@ function Ensure-AzureIaC4VDCRoleDefintion ( $path = "C:\git\bp\MgmtGroup\b2a0bb8
     {
         $roledef |% {
                 
-            $RoleDefinitionFileName =  (Join-Path $mgmtSubscriptionPath "RoleDefintion-$($_.Name).json")
+            $RoleDefinitionFileName =  (Join-Path $mgmtSubscriptionPath "RoleDefinition-$($_.Name).json")
                 
                 
             if($deleteifNecessary -and (Test-Path $RoleDefinitionFileName) -eq $false)

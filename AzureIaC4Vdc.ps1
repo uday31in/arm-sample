@@ -57,7 +57,7 @@ if($RoleDefinition)
 {
 
     Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCRoleDefintion  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
+    Ensure-AzureIaC4VDCRoleDefinition  -path $path\MgmtGroup\$mgmtroot\Mgmt-BP  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
 }
 if($RoleAssignment)
 {
