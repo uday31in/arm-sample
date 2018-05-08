@@ -28,6 +28,13 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
 
 
 Import-Module AzureRM.ManagementGroups -Force
+Import-Module AzureRM.Subscription -Force
+Import-Module AzureRM.Billing -Force
+
+
+Get-Module -Name AzureRM* -ListAvailable
+
+
 
 $global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
 
