@@ -2,6 +2,8 @@
 Write-host "Version of AzureRM.Profile Loaded in Session"
 get-module
 
+Update-Module -Name AzureRM -Force -AllowPrerelease -Confirm:$false
+
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
