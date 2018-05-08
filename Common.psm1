@@ -12,7 +12,7 @@ if (Get-Module -ListAvailable -Name AzureRM.Subscription) {
     Write-Host "Module exists - Subscription"
 } else {
 
-   Install-Module -Name AzureRM.Subscription -AllowPrerelease -Scope CurrentUser
+   Install-Module -Name AzureRM.Subscription -Force -Verbose -Scope CurrentUser -AllowPrerelease
    
 }
 
@@ -21,7 +21,7 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
 } else {
 
   
-   Install-Module -Name Azurerm.Billing -AllowPrerelease -Scope CurrentUser
+   Install-Module -Name Azurerm.Billing -Force -Verbose -Scope CurrentUser -AllowPrerelease
    
 }
 
