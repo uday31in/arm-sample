@@ -2,7 +2,7 @@
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
 } else {
-   Remove-Module -Name AzureRM.Profile -Force
+   
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
    Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
    
@@ -25,6 +25,10 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
    
 }
 
+Get-Module -Name AzureRM* -ListAvailable
+
+Remove-Module -Name AzureRM.Profile -Force
+Remove-Module -Name AzureRM.Subscription -Force
 
 
 Import-Module AzureRM.ManagementGroups -Force
@@ -32,7 +36,6 @@ Import-Module AzureRM.Subscription -Force
 Import-Module AzureRM.Billing -Force
 
 
-Get-Module -Name AzureRM* -ListAvailable
 
 
 
