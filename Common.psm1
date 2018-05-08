@@ -26,7 +26,10 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
    
 }
 
-Get-Module -Name AzureRM* -ListAvailable
+Get-Module -ListAvailable
+
+Write-host "Version of AzureRM.Profile Loaded in Session"
+get-module
 
 #Remove-Module -Name AzureRM.Subscription -Force
 
