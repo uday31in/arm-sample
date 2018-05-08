@@ -1,4 +1,8 @@
-﻿
+﻿Get-Module -ListAvailable
+Write-host "Version of AzureRM.Profile Loaded in Session"
+get-module
+
+
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
 } else {
@@ -26,10 +30,7 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
    
 }
 
-Get-Module -ListAvailable
 
-Write-host "Version of AzureRM.Profile Loaded in Session"
-get-module
 
 #Remove-Module -Name AzureRM.Subscription -Force
 
