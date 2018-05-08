@@ -1,7 +1,7 @@
 ﻿param
 (
 [switch] $MgmtandSubscriptions,
-[switch] $RoleDefintion,
+[switch] $RoleDefinition,
 [switch] $RoleAssignment,
 [switch] $PolicyDefinition,
 [switch] $PolicyAssignment, 
@@ -48,7 +48,7 @@ if($MgmtandSubscriptions)
 }
 
     
-if($RoleDefintion)
+if($RoleDefinition)
 {
 
     Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"

@@ -497,7 +497,7 @@ function Ensure-AzureIaC4VDCRoleDefintion ( $path = "C:\git\bp\MgmtGroup\b2a0bb8
                                             $mgmtSubscriptionPath = "")
 {
     #In Theory Roledefintion should only be specified in management subscription level only.
-    Get-ChildItem -Path $path -Recurse -Include RoleDefintion-*.json |% {
+    Get-ChildItem -Path $path -Recurse -Include RoleDefinition-*.json |% {
 
      [string]$effectiveScope = getScope (get-item $_.PSParentPath)
      Write-Host $effectiveScope
@@ -818,7 +818,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', $effectiveScope = $(getScope $path), $deleteifNecessary = $false)
 {
 
-    Get-ChildItem -Path $path -Recurse -Include PolicyDefintion-*.json |% {
+    Get-ChildItem -Path $path -Recurse -Include PolicyDefinition-*.json |% {
 
          [string]$effectiveScope = getScope (get-item $_.PSParentPath)
          Write-Host $effectiveScope
@@ -828,35 +828,35 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
          $model = $_.FullName
          $model = get-item $model
 
-         $PolicyDefintionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
-         $PolicyDefintionJsonName = $model.BaseName.Replace('PolicyDefintion-','')
+         $PolicyDefinitionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
+         $PolicyDefinitionJsonName = $model.BaseName.Replace('PolicyDefinition-','')
      
-         $PolicyDefintionJson.Name = $PolicyDefintionJsonName
-         $PolicyDefintionJson.Properties.displayName = $PolicyDefintionJsonName
+         $PolicyDefinitionJson.Name = $PolicyDefinitionJsonName
+         $PolicyDefinitionJson.Properties.displayName = $PolicyDefinitionJsonName
      
-         if (( Get-Member -InputObject $PolicyDefintionJson -Name id1) -ne $null)
+         if (( Get-Member -InputObject $PolicyDefinitionJson -Name id1) -ne $null)
          {
-             $PolicyDefintionJson  | Add-member  -MemberType NoteProperty -Name id -Value ''
+             $PolicyDefinitionJson  | Add-member  -MemberType NoteProperty -Name id -Value ''
          }
     
      
-         $PolicyDefintionJson.id =  "$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$PolicyDefintionJsonName"
+         $PolicyDefinitionJson.id =  "$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$PolicyDefinitionJsonName"
 
    
          $PolicyDefintion =  Get-AzureRmPolicyDefinition  |? {   $_.Properties.policytype -eq 'custom'-and `
                                                                 $($_.ResourceId).contains($effectiveScope) -and `
-                                                                $_.Name -eq $PolicyDefintionJsonName}
+                                                                $_.Name -eq $PolicyDefinitionJsonName}
     
-         $PolicyDefintionJson.Name = $PolicyDefintionJsonName  
+         $PolicyDefinitionJson.Name = $PolicyDefinitionJsonName  
 
         
-        $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$($PolicyDefintionJsonName)?api-version=2018-03-01"
+        $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$($PolicyDefinitionJsonName)?api-version=2018-03-01"
         $asc_requestHeader = @{
             Authorization = "Bearer $(getAccessToken)"
             'Content-Type' = 'application/json'
         }
 
-        Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyDefintionJson | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+        Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyDefinitionJson | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
         
     }
 
@@ -891,7 +891,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
                 $policyDefinitionName =  $_.Name
              }
 
-             $policyDefinitionFilePath =  $(join-path  $localdirectory -ChildPath $("PolicyDefintion-$policyDefinitionName.json"))
+             $policyDefinitionFilePath =  $(join-path  $localdirectory -ChildPath $("PolicyDefinition-$policyDefinitionName.json"))
 
                 
             if($deleteifNecessary -and (Test-Path $policyDefinitionFilePath) -eq $false)
