@@ -1,0 +1,107 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "VNet1",
+      "metadata": {
+        "description": "VNet name"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "VNet address prefix"
+      }
+    },
+    "subnet1Prefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Subnet 1 Prefix"
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "defaultValue": "Subnet1",
+      "metadata": {
+        "description": "Subnet 1 Name"
+      }
+    },
+    "routeTableName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the route table in subnet"
+      }
+    },
+    "destinationAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address prefix of the target spoke"
+      }
+    },
+    "nextHopIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP address of the NVA in the hub"
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription ID where the spoke VNet will be deployed"
+      }
+    }
+  },
+  "variables": {    
+  },
+  "resources": [
+    {
+      "name": "[parameters('routeTableName')]",
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "routeToRemoteSpoke",
+            "properties": {
+              "addressPrefix": "[parameters('destinationAddressPrefix')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/routeTables/', parameters('routeTableName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1Prefix')]",
+              "routeTable":{
+                "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/routeTables', parameters('routeTableName'))]"                
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

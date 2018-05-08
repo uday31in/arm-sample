@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "vmName": {
-        "value": "bp-ne-nva"
+        "value": "bp-ncus-nva"
       },
       "adminUsername": {
         "value": "nvaAdmin"
@@ -17,19 +17,19 @@
         }
       },
       "vnetName": {
-        "value": "bp-ne-hub-vnet"
+        "value": "bp-ncus-hub-vnet"
       },    
       "subnetName": {
         "value": "NVASubnet"
       },
       "vnetResourceGroup": {
-        "value": "bp-ne-hub"
+        "value": "bp-ncus-hub"
       },
       "vnetSubscriptionId": {
-        "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
+        "value": "926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4"
       },
       "location": {
-        "value": "northeurope"
+        "value": "northcentralus"
       }      
     }
   }

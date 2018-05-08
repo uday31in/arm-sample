@@ -1,0 +1,30 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "value": "bp-ncus-spoke1-vnet"
+      },
+      "vnetAddressPrefix": {
+        "value": "10.12.2.0/24"
+      },    
+      "subnet1Name": {
+        "value": "subnet1"
+      },
+      "subnet1Prefix": {
+        "value": "10.12.2.0/25"
+      },
+      "routeTableName": {
+        "value": "bp-ncus-spoke1-subnet1-routetable"
+      },
+      "destinationAddressPrefix": {
+        "value": "10.4.2.0/24"
+      },
+      "nextHopIpAddress": {
+        "value": "10.12.0.4"
+      },
+      "subscriptionId": {
+        "value": "0a938bc2-0bb8-4688-bd37-9964427fe0b0"
+      }    
+    }
+  }

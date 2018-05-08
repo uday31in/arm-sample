@@ -3,46 +3,46 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
-      "value": "bp-ne-hub-vnet"
+      "value": "bp-ncus-hub-vnet"
     },
     "vnetAddressPrefix": {
-      "value": "10.4.0.0/23"
+      "value": "10.12.0.0/23"
     },
     "subnet1Name": {
       "value": "NVASubnet"
     },
     "subnet1Prefix": {
-      "value": "10.4.0.0/26"
+      "value": "10.12.0.0/26"
     },
     "gwSubnetPrefix": {
-      "value": "10.4.0.192/26"
+      "value": "10.12.0.192/26"
     },
     "secureGWSubnetPrefix": {
-      "value": "10.4.1.0/24"
+      "value": "10.12.1.0/24"
     },
     "gwName": {
-      "value": "bp-ne-hub-ergw"
+      "value": "bp-ncus-hub-ergw"
     },
     "sku": {
       "value": "Standard"
     },
     "gatewayPublicIpName": {
-      "value": "bp-ne-hub-ergw-ip"
+      "value": "bp-ncus-hub-ergw-ip"
     },
     "routeTableName": {
-      "value": "bp-ne-hub-nvasubnet-routetable"
+      "value": "bp-ncus-hub-nvasubnet-routetable"
     },
     "destinationAddressPrefix": {
-      "value": "10.12.0.0/24"
+      "value": "10.4.0.0/24"
     },
     "nextHopIpAddress": {
-      "value": "10.12.0.4"
+      "value": "10.4.0.4"
     },
     "subscriptionId": {
-      "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
+      "value": "926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4"
     },    
     "location": {
-      "value": "northeurope"
+      "value": "northcentralus"
     }
   }
 }
