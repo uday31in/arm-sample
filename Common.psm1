@@ -1,17 +1,19 @@
-﻿Remove-Module -Name AzureRM.Profile -Force
+﻿
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
 } else {
+   Remove-Module -Name AzureRM.Profile -Force
    Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
    Install-Module -Name AzureRM.ManagementGroups -Force -Verbose -Scope CurrentUser -AllowPrerelease
    
 }
 
-if (Get-Module -ListAvailable -Name AzureRM.Subscription.Preview) {
+if (Get-Module -ListAvailable -Name AzureRM.Subscription) {
     Write-Host "Module exists - Subscription"
 } else {
 
-   Install-Module -Name AzureRM.Subscription.Preview -Force -Verbose -Scope CurrentUser -AllowPrerelease
+   Install-Module -Name AzureRM.Subscription -AllowPrerelease -Scope CurrentUser
+   #Install-Module -Name AzureRM.Subscription.Preview -Force -Verbose -Scope CurrentUser -AllowPrerelease
    
 }
 
@@ -198,10 +200,15 @@ $SubscriptionDisplayName = "BP Spoke for North Europe"
 $ManagementGroupName = "BP-Spoke"
 #>
 
-function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub for North Europe", $SubscriptionDisplayName = "BP Hub for North Europe", $ManagementGroupName = "BP-Hub")
+function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub for North Europe", 
+                                                    $SubscriptionDisplayName = "BP Hub for North Europe",
+                                                     $ManagementGroupName = "BP-Hub",
+                                                     $offerType = "MS-AZR-0017P",
+                                                     $EnrollmentAccountObjectId = 'b38a3dad-9e2d-4ed7-81be-6851bc292fa9'
+                                                     )
 {
 
-        $offerType = "MS-AZR-0017P"
+        
         $managementGrpID= (Get-AzureRmManagementGroup -GroupName $ManagementGroupName).Id
         $managementGrpName=(Get-AzureRmManagementGroup -GroupName $ManagementGroupName).Name
 
@@ -213,7 +220,10 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub fo
         {
                         
             Write-Host "Creating new subscription"
-            $subscription = New-AzureRmSubscriptionDefinition  -Name $subscriptionName  -OfferType $offerType -SubscriptionDisplayName $SubscriptionDisplayName
+
+            $subscription = New-AzureRmSubscription -Name $subscriptionName -OfferType $offerType -OwnerObjectId $vstsAAObjectID -EnrollmentAccountObjectId (Get-AzureRmEnrollmentAccount)[0].ObjectId
+
+            #$subscription = New-AzureRmSubscriptionDefinition  -Name $subscriptionName  -OfferType $offerType -SubscriptionDisplayName $SubscriptionDisplayName
             Write-Host "Creating new subscription Success!"
 
 
@@ -995,9 +1005,9 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
 
                         Write-Host "Calling: New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname"
 
-                        $DebugPreference="Continue"
+                        #$DebugPreference="Continue"
                         New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
-                        $DebugPreference="SilentlyContinue"
+                        #$DebugPreference="SilentlyContinue"
 
                     }
 

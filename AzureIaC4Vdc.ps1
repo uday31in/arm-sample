@@ -22,9 +22,14 @@ if($env:BUILD_SOURCESDIRECTORY)
     $path = "$env:BUILD_SOURCESDIRECTORY"
 
 }
+elseif ($($MyInvocation.ScriptName) -ne $null -and $($MyInvocation.ScriptName) -ne '')
+{
+    $path =  Split-Path $myInvocation.ScriptName 
+
+}
 else
 {
-    $path = "c:\git\bp"
+    $path = $pwd
 }
 
 

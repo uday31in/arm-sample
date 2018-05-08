@@ -11,3 +11,23 @@ Blocked
 ChevronRoot
 Enterprise
 LOBA
+/.vs/VSWorkspaceState.json
+/.vscode/launch.json
+/AzureIaC4Vdc.txt
+/Get-AzureRmPolicyAlias.ps1
+/Mgmt-Group.ps1
+/RoleAssignment.ps1
+/Subscription-Provisioning.ps1
+/app-patterns/single-vm/addomainjoin-extension.json
+/keeper/PolicyAssignment-managed disks.json
+/keeper/RoleAssignment-Uday Pandya-Owner.json
+/mgmt/oms/azuredeploy.parameters.json
+/mgmt/policies/conventions/keyvault.json
+/mgmt/policies/mgmt/deny-dyanamicip.json
+/mgmt/policies/mgmt/e2eaddomainjoinwithoms.json
+/mgmt/policies/mgmt/enforce-tls1.1.json
+/mgmt/policies/mgmt/enforcestaticip.json
+/mgmt/policies/mgmt/test-output.json
+/mgmt/policies/mgmt/test.json
+/mgmt/rbac-role-definition/subnetcreator.json
+/temp.ps1
