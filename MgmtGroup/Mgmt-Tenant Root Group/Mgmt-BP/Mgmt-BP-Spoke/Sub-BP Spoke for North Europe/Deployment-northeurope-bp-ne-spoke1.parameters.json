@@ -9,13 +9,13 @@
         "value": "10.4.2.0/24"
       },    
       "subnet1Name": {
-        "value": "subnet1"
+        "value": "appsubnet"
       },
       "subnet1Prefix": {
         "value": "10.4.2.0/25"
       },
       "routeTableName": {
-        "value": "bp-ne-spoke1-subnet1-routetable"
+        "value": "bp-ne-spoke1-appsubnet-routetable"
       },
       "destinationAddressPrefix": {
         "value": "10.12.2.0/24"

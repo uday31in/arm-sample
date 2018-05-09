@@ -9,13 +9,13 @@
         "value": "10.12.2.0/24"
       },    
       "subnet1Name": {
-        "value": "subnet1"
+        "value": "appsubnet"
       },
       "subnet1Prefix": {
         "value": "10.12.2.0/25"
       },
       "routeTableName": {
-        "value": "bp-ncus-spoke1-subnet1-routetable"
+        "value": "bp-ncus-spoke1-appsubnet-routetable"
       },
       "destinationAddressPrefix": {
         "value": "10.4.2.0/24"
@@ -24,7 +24,7 @@
         "value": "10.12.0.4"
       },
       "subscriptionId": {
-        "value": "0a938bc2-0bb8-4688-bd37-9964427fe0b0"
+        "value": "e1d0d528-f223-4023-9c75-dfb31a2c7ade"
       }    
     }
   }

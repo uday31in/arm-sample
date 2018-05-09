@@ -11,7 +11,7 @@
       "adminPassword": {
         "reference": {
           "keyVault": {
-            "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/keyvault/providers/Microsoft.KeyVault/vaults/octanekeyvault"
+            "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ne-kv/providers/Microsoft.KeyVault/vaults/bp-ne-mgmtkv"
           },
           "secretName": "adminpassword"
         }
@@ -26,7 +26,7 @@
         "value": "bp-ncus-hub"
       },
       "vnetSubscriptionId": {
-        "value": "926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4"
+        "value": "7d180141-24db-4621-aebf-34456fecb137"
       },
       "location": {
         "value": "northcentralus"
