@@ -223,17 +223,14 @@ $SubscriptionDisplayName = "BP Spoke for North Europe"
 $ManagementGroupName = "BP-Spoke"
 #>
 
-function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub for North Europe", 
-                                                    $SubscriptionDisplayName = "BP Hub for North Europe",
+function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub for North Europe", 
+                                                     $SubscriptionDisplayName = "BP Hub for North Europe",
                                                      $ManagementGroupName = "BP-Hub",
                                                      $offerType = "MS-AZR-0017P",
                                                      $EnrollmentAccountObjectId = 'b38a3dad-9e2d-4ed7-81be-6851bc292fa9'
-                                                     )
+                                                 )
 {
-
-        
-        $managementGrpID= (Get-AzureRmManagementGroup -GroupName $ManagementGroupName).Id
-        $managementGrpName=(Get-AzureRmManagementGroup -GroupName $ManagementGroupName).Name
+        $managementGrpName= $ManagementGroupName
 
         $vstsAAObjectID = (Get-AzureRmADServicePrincipal -SearchString 'iaac4dcm-cd4dcm-bb81881b-d6a7-4590-b14e-bb3c575e42c5').Id
 
@@ -252,13 +249,7 @@ function New-AzureIaC4VdcSubsriptionProvisioning( $subscriptionName = "BP Hub fo
 
             # Assign Subscription to its Management Group .
             # $subscription =Get-AzureRmSubscriptionDefinition -Name $subscriptionName1
-            New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId  
-
-            #assigning at subscription level - as Management group level assignment do not flow to subscription
-            #New-AzureRmRoleAssignment -ObjectId $vstsAAObjectID -RoleDefinitionName 'owner' -Scope "/subscriptions/$($subscription.SubscriptionId)"
-
-            #>
-
+            New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
         }
 
 
@@ -512,7 +503,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             {
 
                 Write-Host "Writing roleAssignments at $roldefinitionFilePath"
-                $_ | convertto-json -Depth 10  | out-file -Force -FilePath $roldefinitionFilePath
+                $_ | convertto-json -Depth 10   | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $roldefinitionFilePath
 
             }
 
@@ -622,7 +613,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
         Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
     
         #Updating rolde defintion file to reflect new scopes
-        $updatedRoleDefinition | ConvertTo-Json -Depth 10 | Out-File $model  -Force
+        $updatedRoleDefinition | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
         Write-Host "Updated Role Definition at scope $model"
      
     }
@@ -649,7 +640,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             else 
             {
                 Write-Host "Writing RoleDefinition at $RoleDefinitionFileName"
-                $_ | ConvertTo-Json -Depth 10 | Out-File $RoleDefinitionFileName -Force
+                $_ | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $RoleDefinitionFileName -Force
 
             }
                 
@@ -750,7 +741,7 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
             {
                 
                 Write-Host "Writing PolicyAssignmentAtScope at $policyAssignmentFilename "
-                $_ | convertto-json -Depth 10  | out-file -Force -FilePath $policyAssignmentFilename
+                $_ | convertto-json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }  | out-file -Force -FilePath $policyAssignmentFilename
             }
 
             
@@ -940,7 +931,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
             else
             {
                  Write-Host "Writing Policy at  $policyDefinitionFilePath"
-                 $_ | convertto-json -Depth 10  | out-file -Force -FilePath $policyDefinitionFilePath
+                 $_ | convertto-json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $policyDefinitionFilePath
 
 
             }
@@ -952,11 +943,13 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
 }
 
 
-function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary = $false)
+function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', 
+                                                 $pathtoManangementGroup = '',
+                                                 $deleteifNecessary = $false, 
+                                                 $workspaceId = "/subscriptions/926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4/resourcegroups/bp-azure-oms/providers/microsoft.operationalinsights/workspaces/bp-ws-1000"
+                                                 )
 {
-     
-     
-     ls -Recurse -Directory -Path $path |%    {
+     ls -Recurse -Directory -Path $pathtoManangementGroup |%    {
 
                 $effectiveScope = getScope $_.fullname
 
@@ -1000,10 +993,52 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
                             New-AzureRmManagementGroupSubscription -GroupName $desiredMgmtGroupParentName -SubscriptionId $subscriptionid
                             
                         }
-                        
+
+                        $subscription = Get-AzureRmSubscription -SubscriptionName $subscriptionname
+
+                        $asconfig = @{
+                             Uri = "https://management.azure.com/subscriptions/$($subscription.SubscriptionId)/providers/Microsoft.Security/register?api-version=2017-05-10"
+                             Headers = @{
+                                   Authorization = "Bearer $(getAccessToken)"
+                                   'Content-Type' = 'application/json'
+                                   }
+                                   Method = 'POST'
+                                   UseBasicParsing = $true
+                                   Body = ""
+                                }
+
+                        Invoke-WebRequest @asconfig
+
+                        #FIX - Subscription not registered
+                        #Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Security -Debug
+
+        
+        
+                        $body = @{
+
+                            properties= @{
+
+                                workspaceId = $workspaceId
+                                scope = "/subscriptions/$($subscription.SubscriptionId)"
+                            }
+                        } | ConvertTo-Json
+
+
+                        $asconfig = @{
+                             Uri = "https://management.azure.com/subscriptions/$($subscription.SubscriptionId)/providers/Microsoft.Security/workspaceSettings/default?api-version=2017-08-01-preview"
+                             Headers = @{
+                                   Authorization = "Bearer $(getAccessToken)"
+                                   'Content-Type' = 'application/json'
+                                   }
+                                   Method = 'Put'
+                                   UseBasicParsing = $true
+                                   Body = $body
+                                }
+
+                        Invoke-WebRequest @asconfig
+
 
                     }
-
 
                 }
                 else
@@ -1041,9 +1076,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', $deleteifNecessary 
                 
     }
     
-    #Import-Module $path\Common.psm1 -Force
-    
-    
+      
      $AzureRmManagementGroup |% { 
 
         Write-host "====================================================================="
