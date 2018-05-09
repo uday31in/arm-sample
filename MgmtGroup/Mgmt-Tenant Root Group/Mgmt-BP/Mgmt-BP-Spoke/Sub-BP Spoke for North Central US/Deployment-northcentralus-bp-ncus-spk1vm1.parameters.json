@@ -1,0 +1,32 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "bpncusspk1vm1"
+    },
+    "adminUsername": {
+      "value": "victorar"
+    },    
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/keyvault/providers/Microsoft.KeyVault/vaults/octanekeyvault"
+        },
+        "secretName": "adminpassword"
+      }
+    },
+    "vnetName": {
+      "value": "bp-ncus-spoke1-vnet"
+    },    
+    "subnetName": {
+      "value": "subnet1"
+    },
+    "vnetResourceGroup": {
+      "value": "bp-ncus-spoke1"
+    },
+    "vnetSubscriptionId": {
+      "value": "0a938bc2-0bb8-4688-bd37-9964427fe0b0"
+    }      
+  }
+}

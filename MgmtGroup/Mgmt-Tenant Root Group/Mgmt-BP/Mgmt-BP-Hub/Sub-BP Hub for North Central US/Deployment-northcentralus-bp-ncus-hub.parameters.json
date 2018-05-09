@@ -33,7 +33,7 @@
       "value": "bp-ncus-hub-nvasubnet-routetable"
     },
     "destinationAddressPrefix": {
-      "value": "10.4.0.0/24"
+      "value": "10.4.2.0/24"
     },
     "nextHopIpAddress": {
       "value": "10.4.0.4"
