@@ -33,7 +33,7 @@
       "value": "bp-ne-hub-nvasubnet-routetable"
     },
     "destinationAddressPrefix": {
-      "value": "10.12.0.0/24"
+      "value": "10.12.2.0/24"
     },
     "nextHopIpAddress": {
       "value": "10.12.0.4"

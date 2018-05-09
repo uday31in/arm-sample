@@ -1,0 +1,19 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "keyVaultName": {
+        "value": "bp-ne-mgmtkv"
+      },
+      "objectId": {
+        "value": "c15807e8-e800-4aab-bf3c-2d7b42ec915b"
+      },
+      "secretsPermissions": {
+          "value": ["all"] 
+      },
+      "enabledForTemplateDeployment": {
+          "value": true
+      }      
+    }
+  }
+  
