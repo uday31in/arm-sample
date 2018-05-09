@@ -3,6 +3,59 @@ Write-host "Version of AzureRM.Profile Loaded in Session"
 get-module
 
 #Update-Module -Name AzureRM -Force -AllowPrerelease -Confirm:$false
+$ascpricingtierconfig = @"
+{
+"properties":  {
+                    "policyLevel":  "Subscription",
+                    "name":  "default",
+                    "unique":  "Off",
+                    "logCollection":  "On",
+                    "recommendations":  {
+                                            "patch": "On",
+			                                "baseline": "On",
+			                                "antimalware": "On",
+			                                "diskEncryption": "On",
+			                                "acls": "On",
+			                                "nsgs": "On",
+			                                "waf": "On",
+			                                "sqlAuditing": "On",
+			                                "sqlTde": "On",
+			                                "ngfw": "On",
+			                                "vulnerabilityAssessment": "On",
+			                                "storageEncryption": "On",
+			                                "jitNetworkAccess": "On",
+			                                "appWhitelisting": "On"
+                                        },
+                    "logsConfiguration":  {
+                                                "storages":  {
+
+                                                            }
+                                            },
+                    
+                    "omsWorkspaceConfiguration": {
+			            "workspaces": {}
+		            },
+                    "securityContactConfiguration":  {
+                                                        "securityContactEmails":  [
+                                                                                        "uday.pandya@microsoft.com",
+                                                                                        "hello@world.com"
+                                                                                    ],
+                                                        "securityContactPhone":  "867-5309",
+                                                        "areNotificationsOn":  true,
+                                                        "sendToAdminOn":  false
+                                                    },
+                    "pricingConfiguration":  {
+                                                "resourceGroup": "",
+			                                    "active": "On",
+			                                    "level": "Subscription",
+			                                    "selectedPricingTier": "Standard",
+			                                    "standardTierStartDate": "2018-05-09T18:23:38",
+			                                    "premiumTierStartDate": "0001-01-01T00:00:00"
+                                            }
+                    
+                }
+}
+"@
 
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
@@ -269,7 +322,9 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
         #FIX - Subscription not registered
         #Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Security -Debug
 
-        
+        Write-Host "Waiting for 60 seconds to finish registering Microsoft.Security namespaces"
+        Start-Sleep -Seconds 60
+        Write-Host "Complete! Waiting for 60 seconds to finish registering Microsoft.Security namespaces"
         
         $body = @{
 
@@ -1036,6 +1091,23 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
                                 }
 
                         Invoke-WebRequest @asconfig
+
+
+                        $subscription = Get-AzureRmSubscription -SubscriptionName "BP Spoke for North Europe - Team 2"
+                        $asconfig = @{
+                             Uri = "https://management.azure.com/subscriptions/$($subscription.Id)/providers/Microsoft.Security/policies/default?api-version=2015-06-01-preview" 
+                             
+                             Headers = @{
+                                   Authorization = "Bearer $(getAccessToken)"
+                                   'Content-Type' = 'application/json'
+                                   }
+                                   Method = 'PUT'
+                                   UseBasicParsing = $true
+                                   Body = $ascpricingtierconfig
+                                }
+
+                        Invoke-WebRequest @asconfig
+
 
 
                     }
