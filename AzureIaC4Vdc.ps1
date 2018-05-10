@@ -91,5 +91,9 @@ if($TemplateDeployment)
 {
     Write-Host "AzureIaC4VDCTemplateDeployment : $falgDeleteIfNecessary"
     Ensure-AzureIaC4VDCTemplateDeployment -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
+
+    
+
+    
  
 }
