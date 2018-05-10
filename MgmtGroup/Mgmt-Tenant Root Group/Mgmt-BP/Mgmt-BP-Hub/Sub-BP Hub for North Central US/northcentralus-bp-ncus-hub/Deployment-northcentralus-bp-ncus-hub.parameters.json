@@ -29,6 +29,25 @@
     "gatewayPublicIpName": {
       "value": "bp-ncus-hub-ergw-ip"
     },
+    "connectionName": {
+      "value": "bp-ncus-hub-er-connection-seattle"
+    },
+    "ExpressRouteResourceID": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ncus-kv/providers/Microsoft.KeyVault/vaults/bp-ncus-mgmtkv"
+        },
+        "secretName": "ExpressRouteCircuitIDSeattle"
+      }      
+    },
+    "authorizationKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ncus-kv/providers/Microsoft.KeyVault/vaults/bp-ncus-mgmtkv"
+        },
+        "secretName": "ExpressRouteAuthNCUS"
+      }      
+    },
     "routeTableName": {
       "value": "bp-ncus-hub-nvasubnet-routetable"
     },

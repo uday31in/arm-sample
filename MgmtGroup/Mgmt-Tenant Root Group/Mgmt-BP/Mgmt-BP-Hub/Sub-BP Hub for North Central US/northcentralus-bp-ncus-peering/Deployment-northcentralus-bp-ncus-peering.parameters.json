@@ -12,7 +12,7 @@
             "value": "7d180141-24db-4621-aebf-34456fecb137"
         },
         "vNet1AllowGWTransit": {
-            "value": false
+            "value": true
         },
         "vNet2Name": {
             "value": "bp-ncus-spoke1-vnet"
@@ -24,7 +24,7 @@
             "value": "e1d0d528-f223-4023-9c75-dfb31a2c7ade"
         },
         "vNet2UseRemoteGW": {
-            "value": false
+            "value": true
         }
     }
 }

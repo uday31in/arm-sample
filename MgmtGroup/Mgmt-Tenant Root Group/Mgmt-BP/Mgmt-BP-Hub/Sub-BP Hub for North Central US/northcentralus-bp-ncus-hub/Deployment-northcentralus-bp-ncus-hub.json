@@ -71,6 +71,25 @@
         "description": "Name of the new public IP address for the gateway"
       }
     },
+    "connectionName": {
+      "type": "string",
+      "defaultValue": "ER-Connection",
+      "metadata": {
+        "description": "Name of the ExpressRoute connection"
+      }
+    },
+    "ExpressRouteResourceID": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the ExpressRoute circuit"
+      }
+    },
+    "authorizationKey": {
+      "type": "string",
+      "metadata": {
+        "description": "ExpressRoute circuit authorization key"
+      }
+    },
     "routeTableName": {
       "type": "string",
       "metadata": {
@@ -112,8 +131,10 @@
     "gwSubnetName": "GatewaySubnet",
     "secureGWSubnetName": "SecureGatewaySubnet",
     "gatewayType": "ExpressRoute",
+    "connectionType": "ExpressRoute",    
+    "routingWeight": 3,
     "vnetId": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]"    
+    "gatewaysubnetId": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]"
   },
   "resources": [
     {
@@ -202,6 +223,26 @@
           "name": "[parameters('sku')]",
           "tier": "[parameters('sku')]"
         }
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/connections",
+      "name": "[parameters('connectionName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworkGateways/', parameters('gwName'))]"
+      ],
+      "properties": {
+        "authorizationKey": "[parameters('authorizationKey')]",
+        "virtualNetworkGateway1": {
+          "id": "[resourceId(parameters('subscriptionId'),resourceGroup().name,'Microsoft.Network/virtualNetworkGateways',parameters('gwName'))]"
+        },
+        "peer": {
+          "id": "[parameters('ExpressRouteResourceID')]"
+        },
+        "connectionType": "[variables('connectionType')]",
+        "routingWeight": "[variables('routingWeight')]"
       }
     },
     {
