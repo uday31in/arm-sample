@@ -833,12 +833,23 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
 
 function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', 
                                                $effectiveScope = $(getScope $path) ,
-                                                $deleteifNecessary = $false)
+                                                $deleteifNecessary = $false,
+                                                $recurse = $true )
 {
 
     #CREATE
+
+    if($recurse)
+    {
+
+        $PolicyAssignmentFileList = Get-ChildItem -Path $path -Recurse -Include PolicyAssignment-*.json
+    }
+    else
+    {
+        $PolicyAssignmentFileList = Get-ChildItem -Path $path  -Include PolicyAssignment-*.json
+    }
     
-    Get-ChildItem -Path $path -Recurse -Include PolicyAssignment-*.json |% {
+    $PolicyAssignmentFileList |% {
 
         [string]$effectiveScope = getScope (get-item $_.PSParentPath)
         Write-Host $effectiveScope
@@ -876,7 +887,11 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
     #SWEEP
     [array] $effectivepath  = (Get-Item -Path $path)
-    $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
+
+    if($recurse)
+    {
+        $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
+    }
 
     $effectivepath  |% {
 
