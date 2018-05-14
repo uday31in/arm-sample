@@ -484,22 +484,27 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
     $effectivepath  |% {
 
         $effectiveScope = getscope (get-item $_.Fullname)
-        $folderlocation = $_.Fullname
 
-        $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?api-version=2018-01-01-preview"
-        $asc_requestHeader = @{
-            Authorization = "Bearer $(getAccessToken)"
-            'Content-Type' = 'application/json'
-        }
+        if($effectiveScope -ne $null)
+        {
 
-        Write-Host "Retriving Role Assignment from $asc_uri"
+            $folderlocation = $_.Fullname
 
-        $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-        $JsonObject = ($response.content | ConvertFrom-Json).Value
+            $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?api-version=2018-01-01-preview"
+            $asc_requestHeader = @{
+                Authorization = "Bearer $(getAccessToken)"
+                'Content-Type' = 'application/json'
+            }
+
+            Write-Host "Evaulting Effective Path: $folderlocation"
+            Write-Host "Retriving Role Assignment from $asc_uri"
+
+            $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+            $JsonObject = ($response.content | ConvertFrom-Json).Value
     
-        $JsonObject |? { $_.properties.scope -eq $effectiveScope}  |% {
+                                                                                                                                                                                                                    $JsonObject |? { $_.properties.scope -eq $effectiveScope}  |% {
 
-            Write-Host "Get-AzureRmADUser -ObjectId $($_.properties.principalId)"
+            #Write-Host "Get-AzureRmADUser -ObjectId $($_.properties.principalId)"
 
             if($_.properties.principalType -eq 'User' )
             {
@@ -566,6 +571,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
         } 
 
+            Write-Host "Success! Retriving Role Assignment from $asc_uri"
+        }
     }
 
 
@@ -577,107 +584,113 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
                                             $mgmtSubscriptionID = "",
                                             $mgmtSubscriptionPath = "")
 {
-    #In Theory Roledefintion should only be specified in management subscription level only.
-    Get-ChildItem -Path $path -Recurse -Include RoleDefinition-*.json |% {
+     #In Theory Roledefintion should only be specified in management subscription level only.
+     Get-ChildItem -Path $path -Recurse -Include RoleDefinition-*.json |% {
 
      [string]$effectiveScope = getScope (get-item $_.PSParentPath)
      Write-Host $effectiveScope
      Write-Host $_.FullName
 
-     #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\bb81881b-d6a7-4590-b14e-bb3c575e42c5\RoleDefintion-BP App DevOps-u4.json"
-     $model = $_.FullName
-     $subID = Split-Path (Split-Path $model -Parent) -Leaf
+    #Excluding resource group - 
+    if($effectiveScope.Contains('/resourcegroups/') -eq $false)
+    {
 
-     $RoleDefintionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
+         #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\bb81881b-d6a7-4590-b14e-bb3c575e42c5\RoleDefintion-BP App DevOps-u4.json"
+         $model = $_.FullName
+         $subID = Split-Path (Split-Path $model -Parent) -Leaf
+
+         $RoleDefintionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
           
-     #$RoleDefintionJson | ConvertTo-Json |Out-File -FilePath $model -Force
+         #$RoleDefintionJson | ConvertTo-Json |Out-File -FilePath $model -Force
         
-        Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
+            Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
 
-        $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID"  -Name $RoleDefintionJson.Name 
-        if(-not $RoleDefintion)
-        {
-
-            #Must be GUID
-            $asc_uri= "https://management.azure.com/subscriptions/$mgmtSubscriptionID/providers/Microsoft.Authorization/roleDefinitions/$(New-Guid)?api-version=2018-01-01-preview"           
-            $asc_requestHeader = @{
-                Authorization = "Bearer $(getAccessToken)"
-                'Content-Type' = 'application/json'
-            }
-    
-            $permissions = @()
-            $permissions += @{ actions= $($RoleDefintionJson.actions) }
-
-            if($RoleDefintionJson.notActions.Count -eq 0)
+            $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID"  -Name $RoleDefintionJson.Name 
+            if(-not $RoleDefintion)
             {
-                $permissions += (New-object System.Collections.Arraylist)
-            }
-            else {
-                $permissions += @{ notActions= $($RoleDefintionJson.notActions) }
-            }
-            
-            $myObject = [PSCustomObject]@{
-                properties= @{
-            
-                    roleName = $RoleDefintionJson.Name
-                    description = $RoleDefintionJson.Description
-                    type= "CustomRole"
-                    assignableScopes = ($RoleDefintionJson.assignableScopes)
-                    permissions = $permissions                                
+
+                #Must be GUID
+                $asc_uri= "https://management.azure.com/subscriptions/$mgmtSubscriptionID/providers/Microsoft.Authorization/roleDefinitions/$(New-Guid)?api-version=2018-01-01-preview"           
+                $asc_requestHeader = @{
+                    Authorization = "Bearer $(getAccessToken)"
+                    'Content-Type' = 'application/json'
                 }
-            }
-
-            #Ensure management subid is present in assignable scopes
-            if(-not $myObject.properties.AssignableScopes.Contains( "/subscriptions/$mgmtSubscriptionID"))
-            {
-                $myObject.properties.AssignableScopes +=  "/subscriptions/$mgmtSubscriptionID"
-            }
-
-
-            if(-not $myObject.properties.AssignableScopes.Contains("$effectiveScope"))
-            {
-                $myObject.properties.AssignableScopes += $effectiveScope
-            }
-
-            Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
-
-            $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
-
-            Write-Host "Role Definition Created Successfully at scope /subscriptions/$mgmtSubscriptionID"
-        }
-        #Existing role defintion but new subscription
-
-
-
-        ls -Recurse -Directory -Path $path |%  {
-              
-              [string]$subscriptionScope = getScope (get-item $_.FullName)
-             
-              if($subscriptionScope.StartsWith('/subscriptions/'))
-              {
-                    Write-Host "Adding $subscriptionScope to existing $($RoleDefintion.name)"
-
-                    if(-not $RoleDefintion.AssignableScopes.Contains("$subscriptionScope"))
-                    {
-                        $RoleDefintion.AssignableScopes += $subscriptionScope
-                    }
-            
-              }
-
-        }
-
-        $updatedRoleDefinition = Set-AzureRmRoleDefinition -Role $RoleDefintion
-        Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
     
-        #Updating rolde defintion file to reflect new scopes
-        $updatedRoleDefinition | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
-        Write-Host "Updated Role Definition at scope $model"
+                $permissions = @()
+                $permissions += @{ actions= $($RoleDefintionJson.actions) }
+
+                if($RoleDefintionJson.notActions.Count -eq 0)
+                {
+                    $permissions += (New-object System.Collections.Arraylist)
+                }
+                else {
+                    $permissions += @{ notActions= $($RoleDefintionJson.notActions) }
+                }
+            
+                $myObject = [PSCustomObject]@{
+                    properties= @{
+            
+                        roleName = $RoleDefintionJson.Name
+                        description = $RoleDefintionJson.Description
+                        type= "CustomRole"
+                        assignableScopes = ($RoleDefintionJson.assignableScopes)
+                        permissions = $permissions                                
+                    }
+                }
+
+                #Ensure management subid is present in assignable scopes
+                if(-not $myObject.properties.AssignableScopes.Contains( "/subscriptions/$mgmtSubscriptionID"))
+                {
+                    $myObject.properties.AssignableScopes +=  "/subscriptions/$mgmtSubscriptionID"
+                }
+
+
+                if(-not $myObject.properties.AssignableScopes.Contains("$effectiveScope"))
+                {
+                    $myObject.properties.AssignableScopes += $effectiveScope
+                }
+
+                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+
+                $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
+
+                Write-Host "Role Definition Created Successfully at scope /subscriptions/$mgmtSubscriptionID"
+            }
+            
+            #Existing role defintion but new subscription
+            ls -Recurse -Directory -Path $path |%  {
+              
+                  [string]$subscriptionScope = getScope (get-item $_.FullName)
+             
+                  if( 
+                        ($subscriptionScope.StartsWith('/subscriptions/')) -and 
+                        ($subscriptionScope.Contains('/resourcegroups/') -eq $false)
+                    )
+                  {
+                        Write-Host "Adding $subscriptionScope to existing $($RoleDefintion.name)"
+
+                        if(-not $RoleDefintion.AssignableScopes.Contains("$subscriptionScope"))
+                        {
+                            $RoleDefintion.AssignableScopes += $subscriptionScope
+                        }
+            
+                  }
+
+            }
+
+            $updatedRoleDefinition = Set-AzureRmRoleDefinition -Role $RoleDefintion
+            Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
+    
+            #Updating rolde defintion file to reflect new scopes
+            $updatedRoleDefinition | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
+            Write-Host "Updated Role Definition at scope $model"
      
+        }
+
     }
 
 
-    #Only focus on AzureRM Roledefinition
-
+    #Only focus on AzureRM Roledefinition in managment subscription
     $roledef = Get-AzureRmRoleDefinition  -Scope "/subscriptions/$mgmtSubscriptionID" -Custom
     
     if($roledef -ne $null) 
@@ -852,42 +865,33 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
     #SWEEP
     [array] $effectivepath  = (Get-Item -Path $path)
-
     $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
-
-    Write-Host "Count of Effective Path: $($effectivepath.Count)"
-    $effectivepath |%{ 
-
-        [string]$effectiveScope = getScope (get-item $_.FullName)
-        Write-Host "Effective Path: $_"
-        Write-Host "effectiveScope : $effectiveScope"
-
-    }
-
-
 
     $effectivepath  |% {
 
         [string]$effectiveScope = getScope (get-item $_.FullName)
         [string]$localdirectory = $_.FullName
 
-        $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions?api-version=2018-03-01"
-        $asc_requestHeader = @{
-            Authorization = "Bearer $(getAccessToken)"
-            'Content-Type' = 'application/json'
-        }
+        if($effectiveScope.Contains('/resourcegroups/') -eq $false)
+        {
+            $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions?api-version=2018-03-01"
+            $asc_requestHeader = @{
+                Authorization = "Bearer $(getAccessToken)"
+                'Content-Type' = 'application/json'
+            }
 
-        $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-        $policyDefinitions = ($response.content | ConvertFrom-Json).Value
+            $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+            $policyDefinitions = ($response.content | ConvertFrom-Json).Value
 
-        Write-Host "Retriving Policy Definitions from $asc_uri"
+            Write-Host "Retriving Policy Definitions from $asc_uri"
     
  
-        $policyDefinitions |% {
+            $policyDefinitions |% {
 
-            #write-host  "Scope: $($effectiveScope)/$($_.properties.displayName)" 
-            Write-PolicyAssignmentAtScope -path (get-item $localdirectory) -effectiveScope $effectiveScope -policydefinitionID $_.id -deleteifNecessary:$deleteifNecessary
+                #write-host  "Scope: $($effectiveScope)/$($_.properties.displayName)" 
+                Write-PolicyAssignmentAtScope -path (get-item $localdirectory) -effectiveScope $effectiveScope -policydefinitionID $_.id -deleteifNecessary:$deleteifNecessary
     
+            }
         } 
 
     }
@@ -952,17 +956,20 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
         [string]$effectiveScope = getScope (get-item $_.FullName)
         [string]$localdirectory = $_.FullName
 
-        $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions?api-version=2018-03-01"
-        $asc_requestHeader = @{
-            Authorization = "Bearer $(getAccessToken)"
-            'Content-Type' = 'application/json'
-        }
+        if($effectiveScope.Contains('/resourcegroups/') -eq $false)
+        {
 
-        $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-        $JsonObject = ($response.content | ConvertFrom-Json).Value
+            $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions?api-version=2018-03-01"
+            $asc_requestHeader = @{
+                Authorization = "Bearer $(getAccessToken)"
+                'Content-Type' = 'application/json'
+            }
+
+            $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+            $JsonObject = ($response.content | ConvertFrom-Json).Value
     
  
-        $JsonObject|? {$_.properties.policyType -ne 'BuiltIn' -and $_.id.Contains($effectiveScope)} |% {
+                                                                                                    $JsonObject|? {$_.properties.policyType -ne 'BuiltIn' -and $_.id.Contains($effectiveScope)} |% {
 
              $policyDefinitionName = $null
              $policyDefinitionName = $_.properties.displayName
@@ -995,7 +1002,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
 
 
         } 
-
+        }
     }
 }
 
