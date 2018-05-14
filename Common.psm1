@@ -98,9 +98,14 @@ Import-Module AzureRM.ManagementGroups -Force
 
 $global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
 
-$AzureRmManagementGroup |% {
+if($AzureRmManagementGroup -eq $null )
+{
 
-    Write-Host "Mgmt Group Name: $($_.Name) ID: $($_.Id)"
+    $AzureRmManagementGroup |% {
+
+        Write-Host "Mgmt Group Name: $($_.Name) ID: $($_.Id)"
+
+    }
 
 }
 
@@ -1421,7 +1426,9 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
                     }
                 }
 
-                $asc_uri= "https://management.azure.com/$($effectiveScope.replace("$location-" , ''))/providers/Microsoft.Resources/deployments/$($model.BaseName)?api-version=2017-05-10"
+                $deploymentname = $(get-date -Format "yy-MM-dd-HH-mm-ss") + $model.BaseName
+
+                $asc_uri= "https://management.azure.com/$($effectiveScope.replace("$location-" , ''))/providers/Microsoft.Resources/deployments/$($deploymentname)?api-version=2017-05-10"
                 $asc_requestHeader = @{
                     Authorization = "Bearer $(getAccessToken)"
                     'Content-Type' = 'application/json'
