@@ -310,8 +310,14 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
 
             # Assign Subscription to its Management Group .
             # $subscription =Get-AzureRmSubscriptionDefinition -Name $subscriptionName1
-            New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
+            #New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
         }
+        else
+        {
+
+             Write-Host "Existing subscription found with ID: $($subscription.Id) Name: $($subscription.Name)"
+        }
+
 
 
         $asconfig = @{
@@ -1102,7 +1108,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
                         Invoke-WebRequest @asconfig
 
 
-                        $subscription = Get-AzureRmSubscription -SubscriptionName "BP Spoke for North Europe - Team 2"
+                        $subscription = Get-AzureRmSubscription -SubscriptionName $subscriptionname
                         $asconfig = @{
                              Uri = "https://management.azure.com/subscriptions/$($subscription.Id)/providers/Microsoft.Security/policies/default?api-version=2015-06-01-preview" 
                              
@@ -1349,6 +1355,7 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
                     else
                     {
                         #Moving Orphan child
+                        Write-Host "Moving Subscription from $($existingSubscription.FullName) to Destination $($MgmtGroupLocation.FullName)"
                         move-item -Path $existingSubscription.FullName -Destination ($MgmtGroupLocation).FullName
                     }
 
