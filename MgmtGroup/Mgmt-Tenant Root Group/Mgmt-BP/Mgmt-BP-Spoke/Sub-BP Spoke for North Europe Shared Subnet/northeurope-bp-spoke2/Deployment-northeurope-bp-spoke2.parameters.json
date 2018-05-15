@@ -8,6 +8,9 @@
     "vnetAddressPrefix": {
       "value": "10.4.3.0/24"
     },
+    "dnsServers": {
+      "value": ["10.4.0.68"]
+    },  
     "subnet1Name": {
       "value": "bp-ne-spoke2-prod-web"
     },

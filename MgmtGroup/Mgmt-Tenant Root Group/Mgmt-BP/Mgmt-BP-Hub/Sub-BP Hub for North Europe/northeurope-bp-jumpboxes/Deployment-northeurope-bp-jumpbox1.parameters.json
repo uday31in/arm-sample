@@ -1,0 +1,32 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "bp-nejmpbox1"
+    },
+    "adminUsername": {
+      "value": "bpadmin"
+    },    
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ne-kv/providers/Microsoft.KeyVault/vaults/bp-ne-mgmtkv"
+        },
+        "secretName": "bppassword"
+      }
+    },
+    "vnetName": {
+      "value": "bp-ne-hub-vnet"
+    },    
+    "subnetName": {
+      "value": "JumpboxesSubnet"
+    },
+    "vnetResourceGroup": {
+      "value": "bp-ne-hub"
+    },
+    "vnetSubscriptionId": {
+      "value": "15e50875-e180-4d16-a8cb-57361c6a3cfb"
+    }      
+  }
+}
