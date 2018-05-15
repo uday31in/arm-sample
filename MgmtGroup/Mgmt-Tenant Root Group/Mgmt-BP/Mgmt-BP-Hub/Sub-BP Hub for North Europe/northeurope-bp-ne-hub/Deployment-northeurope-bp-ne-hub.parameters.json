@@ -8,11 +8,26 @@
     "vnetAddressPrefix": {
       "value": "10.4.0.0/23"
     },
+    "dnsServers": {
+      "value": ["10.4.0.68"]
+    },
     "subnet1Name": {
       "value": "NVASubnet"
     },
     "subnet1Prefix": {
       "value": "10.4.0.0/26"
+    },
+    "subnet2Name": {
+      "value": "SharedServicesSubnet"
+    },
+    "subnet2Prefix": {
+      "value": "10.4.0.64/26"
+    },
+    "subnet3Name": {
+      "value": "JumpboxesSubnet"
+    },
+    "subnet3Prefix": {
+      "value": "10.4.0.128/27"
     },
     "gwSubnetPrefix": {
       "value": "10.4.0.192/26"
