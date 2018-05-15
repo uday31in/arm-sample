@@ -1,0 +1,38 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "bp-ncus-dc1"
+    },
+    "adminUsername": {
+      "value": "bpadmin"
+    },    
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ne-kv/providers/Microsoft.KeyVault/vaults/bp-ne-mgmtkv"
+        },
+        "secretName": "bppassword"
+      }
+    },
+    "domainName": {
+      "value": "bpupstream.local"
+    },
+    "vnetName": {
+      "value": "bp-ncus-hub-vnet"
+    },    
+    "subnetName": {
+      "value": "SharedServicesSubnet"
+    },
+    "dcIPAddress": {
+      "value": "10.12.0.68"
+    },
+    "vnetResourceGroup": {
+      "value": "bp-ncus-hub"
+    },
+    "vnetSubscriptionId": {
+      "value": "7d180141-24db-4621-aebf-34456fecb137"
+    }      
+  }
+}
