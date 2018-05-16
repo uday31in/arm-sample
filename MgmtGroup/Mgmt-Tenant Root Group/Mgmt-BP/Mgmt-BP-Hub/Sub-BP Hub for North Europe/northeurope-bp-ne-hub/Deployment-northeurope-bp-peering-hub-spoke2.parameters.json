@@ -18,7 +18,7 @@
             "value": "bp-ne-spoke2-vnet"
         },
         "vNet2ResourceGroup": {
-            "value": "northeurope-bp-spoke2"
+            "value": "bp-ne-spoke2"
         },
         "vNet2subscriptionId": {
             "value": "83253e08-8e4a-4bff-9032-c4e8bc57e2fb"
