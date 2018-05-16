@@ -42,10 +42,32 @@ az group deployment create --name  "$rgname-hub-network-deployment" --resource-g
 
 #joining domain
 
+az group delete --name bp-domain-join2 --no-wait --yes
+az group delete --name $rgname --no-wait --yes
+az account set --subscription "BP Spoke for North Europe"
+rgname="bp-test7"
+location="northeurope"
+az group create --name "$rgname" --location $location
+
+az vm create -g $rgname --name $rgname-vm1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-ne-spoke1 --vnet-name  bp-ne-spoke1-vnet --name appsubnet --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+
+
+az group delete --name $rgname --no-wait --yes
+az account set --subscription "BP Spoke for North Central US"
+rgname="bp-ncus-01"
+location="northcentralus"
+az group create --name "$rgname" --location $location
+
+az vm create -g $rgname --name $rgname-vm1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-ne-spoke1 --vnet-name  bp-ne-spoke1-vnet --name appsubnet --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+
+
+
+
+
 
 az account set --subscription "BP Service (Spoke)"
 rgname="bp-domain-join"
-location="westus2"
+location="northeurope"
 az group create --name "$rgname" --location $location
 
 az vm create -g $rgname --name bp-domain-join1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-wus2-spoke-networking --vnet-name  bp-wus2-prod-spoke  --name bp-wus2-prod-web --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait

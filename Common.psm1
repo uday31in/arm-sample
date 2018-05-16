@@ -57,6 +57,7 @@ $ascpricingtierconfig = @"
 }
 "@
 
+<#
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
@@ -85,21 +86,17 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
    
 }
 
-
-
-#Remove-Module -Name AzureRM.Subscription -Force
-
-
 Import-Module AzureRM.ManagementGroups -Force
-#Import-Module AzureRM.Subscription -Force
-#Import-Module AzureRM.Billing -Force
+#>
 
 
 
-$global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
+
 
 if($AzureRmManagementGroup -eq $null )
 {
+
+    $global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
 
     $AzureRmManagementGroup |% {
 
@@ -576,7 +573,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             {
 
                 Write-Host "Writing roleAssignments at $roldefinitionFilePath"
-                $_ | convertto-json -Depth 10   | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $roldefinitionFilePath
+                $_ | convertto-json -Depth 100   | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $roldefinitionFilePath
 
             }
 
@@ -661,7 +658,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
                     $myObject.properties.AssignableScopes += $effectiveScope
                 }
 
-                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 100) -UseBasicParsing -ContentType "application/json"
 
                 $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
 
@@ -693,7 +690,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
     
             #Updating rolde defintion file to reflect new scopes
-            $updatedRoleDefinition | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
+            $updatedRoleDefinition | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
             Write-Host "Updated Role Definition at scope $model"
      
         }
@@ -721,7 +718,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             else 
             {
                 Write-Host "Writing RoleDefinition at $RoleDefinitionFileName"
-                $_ | ConvertTo-Json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $RoleDefinitionFileName -Force
+                $_ | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $RoleDefinitionFileName -Force
 
             }
                 
@@ -762,7 +759,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
                 else 
                 {
                     Write-Host "Writing RoleDefinition at $RoleDefinitionFileName"
-                    $_ | ConvertTo-Json -Depth 10 | Out-File $RoleDefinitionFileName -Force
+                    $_ | ConvertTo-Json -Depth 100 | Out-File $RoleDefinitionFileName -Force
 
                 }
                 
@@ -822,7 +819,7 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
             {
                 
                 Write-Host "Writing PolicyAssignmentAtScope at $policyAssignmentFilename "
-                $_ | convertto-json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }  | out-file -Force -FilePath $policyAssignmentFilename
+                $_ | convertto-json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }  | out-file -Force -FilePath $policyAssignmentFilename
             }
 
             
@@ -838,6 +835,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 {
 
     #CREATE
+    Write-host "Using Path: $path"
 
     if($recurse)
     {
@@ -846,7 +844,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
     }
     else
     {
-        $PolicyAssignmentFileList = Get-ChildItem -Path $path  -Include PolicyAssignment-*.json
+        $PolicyAssignmentFileList = Get-ChildItem -Path $path  -Filter PolicyAssignment-*.json
     }
     
     $PolicyAssignmentFileList |% {
@@ -864,6 +862,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
         $PolicyAssignmentJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
 
         $PolicyAssignmentJson.Name = $PolicyAssignmentJsonName
+        $PolicyAssignmentJson.Properties.displayName = $PolicyAssignmentJsonName
         $PolicyAssignmentJson.Properties.scope = $effectiveScope
 
         #Ensure Policy Definition ID and Scope of an ID is correct
@@ -880,9 +879,15 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
                 'Content-Type' = 'application/json'
             }
 
-         Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyAssignmentJson | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+         Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyAssignmentJson | ConvertTo-Json -Depth 100) -UseBasicParsing -ContentType "application/json"
 
     }
+
+    
+    Write-Host "***********************************************"
+    Write-host "AzureIaC4VDCPolicyAssignments - Push Completed"
+    Write-Host "***********************************************"
+
 
 
     #SWEEP
@@ -942,32 +947,35 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
          $PolicyDefinitionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
          $PolicyDefinitionJsonName = $model.BaseName.Replace('PolicyDefinition-','')
      
-         $PolicyDefinitionJson.Name = $PolicyDefinitionJsonName
-         $PolicyDefinitionJson.Properties.displayName = $PolicyDefinitionJsonName
      
-         if (( Get-Member -InputObject $PolicyDefinitionJson -Name id1) -ne $null)
+         if (( Get-Member -InputObject $PolicyDefinitionJson -Name Name) -eq $null)
+         {
+             $PolicyDefinitionJson  | Add-member  -MemberType NoteProperty -Name Name -Value ''
+         }
+         $PolicyDefinitionJson.Name = $PolicyDefinitionJsonName
+
+
+         if (( Get-Member -InputObject $PolicyDefinitionJson.properties -Name displayName) -eq $null)
+         {
+             $PolicyDefinitionJson.Properties  | Add-member  -MemberType NoteProperty -Name displayName -Value ''
+         }
+         $PolicyDefinitionJson.Properties.displayName = $PolicyDefinitionJsonName
+
+         
+         if (( Get-Member -InputObject $PolicyDefinitionJson -Name id) -eq $null)
          {
              $PolicyDefinitionJson  | Add-member  -MemberType NoteProperty -Name id -Value ''
-         }
-    
-     
+         }   
          $PolicyDefinitionJson.id =  "$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$PolicyDefinitionJsonName"
 
-   
-         $PolicyDefintion =  Get-AzureRmPolicyDefinition  |? {   $_.Properties.policytype -eq 'custom'-and `
-                                                                $($_.ResourceId).contains($effectiveScope) -and `
-                                                                $_.Name -eq $PolicyDefinitionJsonName}
-    
-         $PolicyDefinitionJson.Name = $PolicyDefinitionJsonName  
-
-        
+           
         $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/policyDefinitions/$($PolicyDefinitionJsonName)?api-version=2018-03-01"
         $asc_requestHeader = @{
             Authorization = "Bearer $(getAccessToken)"
             'Content-Type' = 'application/json'
         }
 
-        Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyDefinitionJson | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+        Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($PolicyDefinitionJson | ConvertTo-Json -Depth 100) -UseBasicParsing -ContentType "application/json"
         
     }
 
@@ -995,7 +1003,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
             $JsonObject = ($response.content | ConvertFrom-Json).Value
     
  
-                                                                                                    $JsonObject|? {$_.properties.policyType -ne 'BuiltIn' -and $_.id.Contains($effectiveScope)} |% {
+             $JsonObject|? {$_.properties.policyType -ne 'BuiltIn' -and $_.id.Contains($effectiveScope)} |% {
 
              $policyDefinitionName = $null
              $policyDefinitionName = $_.properties.displayName
@@ -1021,7 +1029,7 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
             else
             {
                  Write-Host "Writing Policy at  $policyDefinitionFilePath"
-                 $_ | convertto-json -Depth 10  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $policyDefinitionFilePath
+                 $_ | convertto-json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $policyDefinitionFilePath
 
 
             }
@@ -1449,7 +1457,7 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
                     'Content-Type' = 'application/json'
                 }
 
-                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 10) -UseBasicParsing -ContentType "application/json"
+                Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 100) -UseBasicParsing -ContentType "application/json"
                 
             }
             else
