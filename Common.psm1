@@ -354,7 +354,9 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
 
 }
 
-function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", $deleteifNecessary=$false)
+function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\",
+                                            $mgmtSubscriptionID = "bb81881b-d6a7-4590-b14e-bb3c575e42c5",
+                                            $deleteifNecessary=$false)
 {
 
     Get-ChildItem -Path $path -Recurse -Include RoleAssignment*.json |% {
@@ -401,7 +403,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                              
                                 Write-Host "Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid"
                                 
-                                $DebugPreference="Continue"
+                                #$DebugPreference="Continue"
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
                                 Write-Host "Assignment Name: $($assignment.DisplayName) Role Name: $($assignment.RoleDefinitionName) subscriptionScope: $subscriptionScope"
@@ -487,7 +489,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 $aaduser = (Get-AzureRmADServicePrincipal -ObjectId $_.properties.principalId).DisplayName
             }
 
-            $roldefinition =  (Get-AzureRmRoleDefinition -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
+            $roldefinition =  (Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
             
             $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser)-$roldefinition.json"))
             
@@ -552,7 +554,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
 function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
                                             $deleteifNecessary=$false,
-                                            $mgmtSubscriptionID = "",
+                                            $mgmtSubscriptionID = "bb81881b-d6a7-4590-b14e-bb3c575e42c5",
                                             $mgmtSubscriptionPath = "")
 {
      #In Theory Roledefintion should only be specified in management subscription level only.
@@ -568,11 +570,11 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
 
          #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\bb81881b-d6a7-4590-b14e-bb3c575e42c5\RoleDefintion-BP App DevOps-u4.json"
          $model = $_.FullName
-         $subID = Split-Path (Split-Path $model -Parent) -Leaf
-
+         
          $RoleDefintionJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
-          
-         #$RoleDefintionJson | ConvertTo-Json |Out-File -FilePath $model -Force
+
+         $RoleDefintionJson.Name = $_.BaseName -replace ('RoleDefinition-' , '')
+         $RoleDefintionJson.Description = $_.BaseName -replace ('RoleDefinition-' , '')
         
             Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
 
