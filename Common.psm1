@@ -628,8 +628,12 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
                 $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
 
                 Write-Host "Role Definition Created Successfully at scope /subscriptions/$mgmtSubscriptionID"
+                $RoleDefintion | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
             }
             
+            #reading  from the desired store. What we read earlier is not compatible GET != SET for Role Definition
+            $RoleDefintion = Get-Content -Path $model | Out-String | ConvertFrom-Json
+
             #Existing role defintion but new subscription
             ls -Recurse -Directory -Path $path |%  {
               
@@ -651,16 +655,22 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
 
             }
 
-            $updatedRoleDefinition = Set-AzureRmRoleDefinition -Role $RoleDefintion
-            Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
-    
             #Updating rolde defintion file to reflect new scopes
-            $updatedRoleDefinition | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
             Write-Host "Updated Role Definition at scope $model"
+            $RoleDefintion | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
+            
+
+            #Setting  from the desired stor with updated subscription scope.
+            $updatedRoleDefinition = Set-AzureRmRoleDefinition -InputFile $model
+            Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
      
         }
 
     }
+
+    Write-Host "***********************************************"
+    Write-host "AzureIaC4VDCRoleDefinition - Push Completed"
+    Write-Host "***********************************************"
 
 
     #Only focus on AzureRM Roledefinition in managment subscription
@@ -692,50 +702,6 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
                         
                         
     }
-
-    <#
-
-    ##########################################################################
-    #We will be statically checking role definition in mgmt subscription only#
-    ##########################################################################
-
-    [array] $effectivepath  = (Get-Item -Path $path)
-    $effectivepath += (Get-ChildItem -Path $path -Recurse -Directory)
-    $effectivepath  |% {
-
-        [string]$effectiveScope = getScope (get-item $_.FullName)
-        [string]$localdirectory = $_.FullName
-
-        $roledef = Get-AzureRmRoleDefinition  -Scope $effectiveScope -Custom
-        if($roledef -ne $null) 
-        {
-            $roledef |% {
-                
-                $RoleDefinitionFileName =  (Join-Path $localdirectory "RoleDefintion-$($_.Name).json")
-                
-                
-                if($deleteifNecessary -and (Test-Path $RoleDefinitionFileName) -eq $false)
-                {
-
-                    Write-Host "Deleting RoleDefinition at $RoleDefinitionFileName"
-                    remove-AzureRmRoleDefinition  -Scope $effectiveScope -Id $_.Id -Confirm:$false -Force 
-                }
-
-                else 
-                {
-                    Write-Host "Writing RoleDefinition at $RoleDefinitionFileName"
-                    $_ | ConvertTo-Json -Depth 100 | Out-File $RoleDefinitionFileName -Force
-
-                }
-                
-                
-            }
-                        
-                        
-        }
-
-    }
-    #>
 
 
 }
