@@ -57,7 +57,7 @@ $ascpricingtierconfig = @"
 }
 "@
 
-<#
+
 
 if (Get-Module -ListAvailable -Name AzureRM.ManagementGroups) {
     Write-Host "Module exists - ManagementGroups"
@@ -87,10 +87,6 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
 }
 
 Import-Module AzureRM.ManagementGroups -Force
-#>
-
-
-
 
 
 if($AzureRmManagementGroup -eq $null )
@@ -275,16 +271,6 @@ function getAccessToken()
 
 }
 
-#Login as the Account Admin
-
-#Login-AzureRmAccount
-
-# Parameters being passed from Payload
-<#
-$subscriptionName = "BP-Spoke-NE"
-$SubscriptionDisplayName = "BP Spoke for North Europe"
-$ManagementGroupName = "BP-Spoke"
-#>
 
 function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub for North Europe", 
                                                      $SubscriptionDisplayName = "BP Hub for North Europe",
@@ -394,6 +380,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             $_roledefinitionid = (($RoleAssignmentJson.properties.roleDefinitionId -split '/' )  | select -Last 1)
             $_objectid =  $RoleAssignmentJson.properties.principalId   
 
+
+
+            <#
+
             $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?api-version=2018-01-01-preview"
             $asc_requestHeader = @{
                 Authorization = "Bearer $(getAccessToken)"
@@ -414,21 +404,23 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             if(-not $RmRoleAssignment)
             {
 
-                              
+            #>                  
                 ##############################################################################
                 #Work around until RBAC at managemnt group is inherited to subscriotion level#
                 ##############################################################################
 
 
                 if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
-                { 
-                    <#
-                    ls -Recurse -Directory -Path  (get-item $_.PSParentPath) |%  {
+                {
+                
+                    #$managedsubscriptions = (getAllManagementGroupBelowScopeRecursive -id $effectiveScope)|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
+                    #$managedsubscriptions += (getAllSubscriptionBelowScope -id $effectiveScope) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
+                    
+                    ls $model.PSParentPath -Directory -Recurse -Filter sub-*  |% {
 
                             
-                            [string]$subscriptionScope = getScope (get-item $_.FullName)
-                                                    
-                            
+                            [string]$subscriptionScope = getScope $_
+
                             if($subscriptionScope.StartsWith('/subscriptions/'))
                             {
                              
@@ -437,16 +429,12 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                                 #$DebugPreference="Continue"
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
-                                Write-Host "subscriptionScope: $subscriptionScope assignment: $assignment"
+                                Write-Host "Assignment Name: $($assignment.DisplayName) Role Name: $($assignment.RoleDefinitionName) subscriptionScope: $subscriptionScope"
 
                                 if($assignment -eq $null)
                                 {
                                     Write-Host "Missing AzureRmRoleAssignment for Scope: New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid " 
-                                    
-                                    Get-AzureRmContext
                                     New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
-
-                                    
 
                                 }
                                 #copy Assignment file to Subscirption so that it doesnt get deleted
@@ -456,7 +444,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
-                    #>
+                   
                    
                     
                 }
@@ -465,7 +453,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 else
                 {
             
-                    Write-Host "Line 389. Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+                    Write-Host "Calling Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
 
                     $assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
                     if($assignment -eq $null)
@@ -478,7 +466,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                 }
                 
-            }
+            #}
             Write-Host "Success! $($_.FullName)"
     }
 
@@ -539,7 +527,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                 if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
                 {
-                    <#
+                    
 
                     #######################################################################################
                     #Disabling Subscription level deleteion when RBAC is removed at Management group level#
@@ -564,7 +552,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                             }
 
                     }
-                    #>
+                    
                 }
 
             }
@@ -1524,7 +1512,7 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
                     'Content-Type' = 'application/json'
                 }
 
-                #Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing
+                Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing
                 Write-Host "Success! Deleting Resource Group $_rgname at $_location"
                 
             }
