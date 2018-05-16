@@ -379,32 +379,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             $_roledefinitionid = (($RoleAssignmentJson.properties.roleDefinitionId -split '/' )  | select -Last 1)
             $_objectid =  $RoleAssignmentJson.properties.principalId   
-
-
-
-            <#
-
-            $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?api-version=2018-01-01-preview"
-            $asc_requestHeader = @{
-                Authorization = "Bearer $(getAccessToken)"
-                'Content-Type' = 'application/json'
-            }
-
-            write-host "Retriving Role Assignments: $asc_uri"
-
-            $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-            $JsonObject = ($response.content | ConvertFrom-Json).Value
-
-            $RmRoleAssignment = $JsonObject |? {$_.properties.scope -eq $effectiveScope -and 
-                                                ($_.properties.roledefinitionid).contains($_roledefinitionid) -and 
-                                                  $_.properties.principalId -eq $_objectid}
-
-            write-host "Retriving Role Assignments Successfully: $RmRoleAssignment"
-
-            if(-not $RmRoleAssignment)
-            {
-
-            #>                  
+              
                 ##############################################################################
                 #Work around until RBAC at managemnt group is inherited to subscriotion level#
                 ##############################################################################
@@ -426,7 +401,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                              
                                 Write-Host "Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid"
                                 
-                                #$DebugPreference="Continue"
+                                $DebugPreference="Continue"
                                 $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
 
                                 Write-Host "Assignment Name: $($assignment.DisplayName) Role Name: $($assignment.RoleDefinitionName) subscriptionScope: $subscriptionScope"
