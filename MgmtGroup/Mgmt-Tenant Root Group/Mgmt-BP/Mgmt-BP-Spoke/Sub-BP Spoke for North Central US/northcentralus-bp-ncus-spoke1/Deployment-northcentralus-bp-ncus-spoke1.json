@@ -16,6 +16,13 @@
         "description": "VNet address prefix"
       }
     },
+    "dnsServers": {
+      "type": "array",
+      "defaultValue": ["8.8.8.8"],
+      "metadata": {
+        "description": "DNS Servers address list"
+      }
+    },
     "subnet1Prefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
@@ -89,6 +96,9 @@
           "addressPrefixes": [
             "[parameters('vnetAddressPrefix')]"
           ]
+        },
+        "dhcpOptions": {
+          "dnsServers":  "[parameters('dnsServers')]"
         },
         "subnets": [
           {
