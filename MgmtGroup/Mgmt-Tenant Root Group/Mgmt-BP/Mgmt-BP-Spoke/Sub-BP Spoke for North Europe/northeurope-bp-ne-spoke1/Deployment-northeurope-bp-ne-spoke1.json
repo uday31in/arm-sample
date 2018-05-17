@@ -43,17 +43,12 @@
         "description": "Name of the route table in subnet"
       }
     },
-    "destinationAddressPrefix": {
-      "type": "string",
+    "routeEntries": {
+      "type": "object",
       "metadata": {
-        "description": "Address prefix of the target spoke"
+        "description": "Route entries to be added to the route table"
       }
-    },
-    "nextHopIpAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "IP address of the NVA in the hub"
-      }
+      
     },
     "subscriptionId": {
       "type": "string",
@@ -64,23 +59,68 @@
   },
   "variables": {    
   },
-  "resources": [
+  "resources": [    
     {
       "name": "[parameters('routeTableName')]",
       "type": "Microsoft.Network/routeTables",
       "apiVersion": "2017-10-01",
       "location": "[resourceGroup().location]",
       "properties": {
-        "routes": [
-          {
-            "name": "routeToRemoteSpoke",
-            "properties": {
-              "addressPrefix": "[parameters('destinationAddressPrefix')]",
-              "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+        "routes": []
+      }
+    },
+    {
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "loop-0",
+      "dependsOn": [
+        "[parameters('routeTableName')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [],
+          "outputs": {}
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "[concat('loop-', copyIndex(1))]",
+      "dependsOn": [
+        "[concat('loop-', copyIndex())]"
+      ],
+      "copy": {
+        "name": "iterator",
+        "count": "[length(parameters('routeEntries').routes)]"
+      },
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat( parameters('routeTableName'), '/' , parameters('routeEntries').routes[copyIndex()].name)]",
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2016-09-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressPrefix": "[parameters('routeEntries').routes[copyIndex()].addressPrefix]",
+                "nextHopType": "[parameters('routeEntries').routes[copyIndex()].nextHopType]",
+                "nextHopIpAddress": "[parameters('routeEntries').routes[copyIndex()].nextHopIpAddress]"
+              }
             }
-          }
-        ]
+          ]
+        }
       }
     },
     {
@@ -89,7 +129,7 @@
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/routeTables/', parameters('routeTableName'))]"
+        "[concat('loop-', length(parameters('routeEntries').routes))]"
       ],
       "properties": {
         "addressSpace": {
