@@ -9,7 +9,7 @@
       "value": "10.12.0.0/23"
     },
     "dnsServers": {
-      "value": ["10.12.0.68"]
+      "value": ["10.12.0.68","10.4.0.68"]
     },
     "subnet1Name": {
       "value": "NVASubnet"
@@ -67,7 +67,7 @@
       "value": "bp-ncus-hub-nvasubnet-routetable"
     },
     "destinationAddressPrefix": {
-      "value": "10.4.2.0/24"
+      "value": "10.4.0.0/16"
     },
     "nextHopIpAddress": {
       "value": "10.4.0.4"

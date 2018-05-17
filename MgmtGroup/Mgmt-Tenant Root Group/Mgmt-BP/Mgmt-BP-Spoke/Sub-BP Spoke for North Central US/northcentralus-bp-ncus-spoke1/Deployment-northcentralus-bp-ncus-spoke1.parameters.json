@@ -19,12 +19,18 @@
       },
       "routeTableName": {
         "value": "bp-ncus-spoke1-appsubnet-routetable"
-      },
-      "destinationAddressPrefix": {
-        "value": "10.4.2.0/24"
-      },
-      "nextHopIpAddress": {
-        "value": "10.12.0.4"
+      },      
+      "routeEntries": {
+        "value": {
+          "routes": [
+            {
+              "name": "CNFW",
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "10.12.1.4"
+            }            
+          ]
+        }
       },
       "subscriptionId": {
         "value": "e1d0d528-f223-4023-9c75-dfb31a2c7ade"
