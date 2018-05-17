@@ -354,6 +354,48 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
 
 }
 
+
+function Ensure-RoleAssignmentAtScope ( $_objectid = '643c93b7-85df-4ea0-8a11-ce3f176785cf',
+                                        $effectiveScope = '/subscriptions/7d180141-24db-4621-aebf-34456fecb137',
+                                        $_roledefinitionid = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635', 
+                                        $model="",
+                                        $destination = ''
+                                        
+                                      )
+{
+
+    $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?`$filter=principalId eq `'$_objectid`'`&api-version=2018-01-01-preview"
+    $asc_requestHeader = @{
+        Authorization = "Bearer $(getAccessToken)"
+        'Content-Type' = 'application/json'
+    }
+
+    $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+    $roleAssignmentsJson = ($response.content | ConvertFrom-Json).Value
+            
+    $assignment = $roleAssignmentsJson |? { ($_.properties.scope -eq $effectiveScope) -and
+                                (($_.properties.roledefinitionid) -match ($_roledefinitionid))
+                            }
+
+    if($assignment -eq $null)
+    {
+        Write-Host "calling New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+        New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
+        Write-Host "Success! New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+
+
+        Write-Host "Copying File To  $($_.FullName) from $($model.FullName)"
+        copy $model $destination -Force
+       
+    }
+    else
+    {
+        Write-Host "Assignment Exist at -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+    }
+
+}
+
+
 function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\",
                                             $mgmtSubscriptionID = "bb81881b-d6a7-4590-b14e-bb3c575e42c5",
                                             $deleteifNecessary=$false)
@@ -382,13 +424,13 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             $_roledefinitionid = (($RoleAssignmentJson.properties.roleDefinitionId -split '/' )  | select -Last 1)
             $_objectid =  $RoleAssignmentJson.properties.principalId   
               
-                ##############################################################################
-                #Work around until RBAC at managemnt group is inherited to subscriotion level#
-                ##############################################################################
+            ##############################################################################
+            #Work around until RBAC at managemnt group is inherited to subscriotion level#
+            ##############################################################################
 
 
-                if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
-                {
+            if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
+            {
                 
                     #$managedsubscriptions = (getAllManagementGroupBelowScopeRecursive -id $effectiveScope)|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
                     #$managedsubscriptions += (getAllSubscriptionBelowScope -id $effectiveScope) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
@@ -400,23 +442,10 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
                             if($subscriptionScope.StartsWith('/subscriptions/'))
                             {
-                             
-                                Write-Host "Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid"
+
+                                Ensure-RoleAssignmentAtScope -effectiveScope $subscriptionScope -_objectid:$($RoleAssignmentJson.properties.principalId) -_roledefinitionid:$_roledefinitionid -model:$model -destination:$_.FullName
+
                                 
-                                #$DebugPreference="Continue"
-                                $assignment = Get-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
-
-                                Write-Host "Assignment Name: $($assignment.DisplayName) Role Name: $($assignment.RoleDefinitionName) subscriptionScope: $subscriptionScope"
-
-                                if($assignment -eq $null)
-                                {
-                                    Write-Host "Missing AzureRmRoleAssignment for Scope: New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $($RoleAssignmentJson.properties.principalId)  -RoleDefinitionId  $_roledefinitionid " 
-                                    New-AzureRmRoleAssignment -Scope $subscriptionScope -ObjectId $RoleAssignmentJson.properties.principalId  -RoleDefinitionId  $_roledefinitionid 
-
-                                }
-                                #copy Assignment file to Subscirption so that it doesnt get deleted
-
-                                copy $model $_.FullName -Force
 
                             }
 
@@ -424,26 +453,37 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                    
                    
                     
+            }    
+            else
+            {
+                   
+                Ensure-RoleAssignmentAtScope -effectiveScope $effectiveScope -_objectid:$_objectid -_roledefinitionid:$_roledefinitionid
+                
+                <#
+                $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?`$filter=principalId eq `'$_objectid`'`&api-version=2018-01-01-preview"
+                $asc_requestHeader = @{
+                    Authorization = "Bearer $(getAccessToken)"
+                    'Content-Type' = 'application/json'
                 }
 
-                
-                else
-                {
+                $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+                $roleAssignmentsJson = ($response.content | ConvertFrom-Json).Value
             
-                    Write-Host "Calling Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-
-                    $assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
-                    if($assignment -eq $null)
-                    {
-                        Write-Host "calling New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-                        New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
-                        Write-Host "Success! New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-                    }
+                $assignment = $roleAssignmentsJson |? { ($_.properties.scope -eq $effectiveScope) -and
+                                            (($_.properties.roledefinitionid) -match ($_roledefinitionid))
+                                        }
                     
-
+                #Write-Host "Calling Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+                #$assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
+                if($assignment -eq $null)
+                {
+                    Write-Host "calling New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
+                    New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
+                    Write-Host "Success! New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
                 }
-                
-            #}
+                #>
+                  
+            }
             Write-Host "Success! $($_.FullName)"
     }
 
@@ -474,81 +514,81 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
             $JsonObject = ($response.content | ConvertFrom-Json).Value
-    
-                                                                                                                                                                                                                    $JsonObject |? { $_.properties.scope -eq $effectiveScope}  |% {
 
-            #Write-Host "Get-AzureRmADUser -ObjectId $($_.properties.principalId)"
-
-            if($_.properties.principalType -eq 'User' )
-            {
             
-                $aaduser = (Get-AzureRmADUser -ObjectId $_.properties.principalId).DisplayName
-            }
-            if($_.properties.principalType -eq 'ServicePrincipal')
-            {
-                $aaduser = (Get-AzureRmADServicePrincipal -ObjectId $_.properties.principalId).DisplayName
-            }
-
-            $roldefinition =  (Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
-            
-            $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser)-$roldefinition.json"))
-            
-            
-            if($deleteifNecessary -and (Test-Path $roldefinitionFilePath) -eq $false)
-            {
-
-                Write-Host "Deleting roleAssignments at scope $effectiveScope name: $($_.Name)"
-                $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments/$($_.Name)?api-version=2018-01-01-preview"
-                Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-
-
-                if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
+             $JsonObject|? { ($_.properties.scope -eq $effectiveScope) } |% {
+                                            
+                if($_.properties.principalType -eq 'User' )
                 {
-                    
-
-                    #######################################################################################
-                    #Disabling Subscription level deleteion when RBAC is removed at Management group level#
-                    #######################################################################################
-                    
-                    ls -Recurse -Directory -Path  $folderlocation |%  {
-
-                            [string]$subscriptionScope = getScope (get-item $_.FullName)
-                            if($subscriptionScope.StartsWith('/subscriptions/'))
-                            {
-                                Write-Host "(MgmtGroup Nested) Deleting roleAssignments at scope $subscriptionScope name: $($_.Name)"
-
-                                $asc_uri= " https://management.azure.com/$subscriptionScope/providers/Microsoft.Authorization/roleAssignments/$($_.Name)?api-version=2018-01-01-preview"
-                                Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-
-
-                                if(test-path $(join-path  $_.FullName -ChildPath $("RoleAssignment-$aaduser-$roldefinition.json")))
-                                {
-                                    remove-item $(join-path  $_.FullName -ChildPath $("RoleAssignment-$aaduser-$roldefinition.json")) -Force -Confirm:$false
-                                }
-                                
-                            }
-
-                    }
-                    
+            
+                    $aaduser = (Get-AzureRmADUser -ObjectId $_.properties.principalId).DisplayName
+                }
+                if($_.properties.principalType -eq 'ServicePrincipal')
+                {
+                    $aaduser = (Get-AzureRmADServicePrincipal -ObjectId $_.properties.principalId).DisplayName
                 }
 
+                $roldefinition =  (Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
+            
+                $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser)-$roldefinition.json"))
+            
+            
+                if($deleteifNecessary -and (Test-Path $roldefinitionFilePath) -eq $false)
+                {
+
+                    Write-Host "Deleting roleAssignments at scope $effectiveScope name: $($_.Name)"
+                    $asc_uri= " https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments/$($_.Name)?api-version=2018-01-01-preview"
+                    Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+
+
+                    if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
+                    {
+                    
+
+                        #######################################################################################
+                        #Disabling Subscription level deleteion when RBAC is removed at Management group level#
+                        #######################################################################################
+                    
+                        <#
+                        ls -Recurse -Directory -Path  $folderlocation |%  {
+
+                                [string]$subscriptionScope = getScope (get-item $_.FullName)
+                                if($subscriptionScope.StartsWith('/subscriptions/'))
+                                {
+                                    Write-Host "(MgmtGroup Nested) Deleting roleAssignments at scope $subscriptionScope name: $($_.Name)"
+
+                                    $asc_uri= " https://management.azure.com/$subscriptionScope/providers/Microsoft.Authorization/roleAssignments/$($_.Name)?api-version=2018-01-01-preview"
+                                    Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+
+
+                                    if(test-path $(join-path  $_.FullName -ChildPath $("RoleAssignment-$aaduser-$roldefinition.json")))
+                                    {
+                                        remove-item $(join-path  $_.FullName -ChildPath $("RoleAssignment-$aaduser-$roldefinition.json")) -Force -Confirm:$false
+                                    }
+                                
+                                }
+
+                        }
+                        #>
+                    
+                    }
+
             }
 
-            else
-            {
+                else
+                {
 
-                Write-Host "Writing roleAssignments at $roldefinitionFilePath"
-                $_ | convertto-json -Depth 100   | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $roldefinitionFilePath
+                    Write-Host "Writing roleAssignments at $roldefinitionFilePath"
+                    $_ | convertto-json -Depth 100   | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | out-file -Force -FilePath $roldefinitionFilePath
 
+                }
             }
 
         } 
 
-            Write-Host "Success! Retriving Role Assignment from $asc_uri"
-        }
+        Write-Host "Success! Retriving Role Assignment from $asc_uri"
+    
     }
-
-
 }
 
 
@@ -671,6 +711,12 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
     Write-Host "***********************************************"
     Write-host "AzureIaC4VDCRoleDefinition - Push Completed"
     Write-Host "***********************************************"
+
+    
+    Write-Host "Waiting for 90 seconds to Update Role Defintiion"
+    Start-Sleep -Seconds 90
+    Write-Host "Waiting for 90 seconds to Update Role Defintiion"
+       
 
 
     #Only focus on AzureRM Roledefinition in managment subscription
