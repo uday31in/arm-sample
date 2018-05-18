@@ -133,7 +133,7 @@ function getScope([System.io.DirectoryInfo] $name)
      }
 
      #search for Resource Group
-     if(    ($name.name -ne 'nestedtemplates') -and
+     if(    
             ((getScope $name.Parent.Name).startswith('/subscriptions') -eq $true)
         )
       {
@@ -258,7 +258,25 @@ function getAllSubscriptionBelowScope ([string] $id)
  
 }
 
+function getAllSubscriptionBelowManagementGroupRecursive ([string] $id)
+{
+    $managedsubscriptions = $null
 
+    if( (getScope $id).StartsWith('/providers/Microsoft.Management/managementGroups/'))
+    {
+
+        $managedsubscriptions = getAllManagementGroupBelowScopeRecursive (getScope $id)|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
+        $managedsubscriptions += getAllSubscriptionBelowScope -id (getScope $id) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
+
+    }
+    if( (getScope $id).StartsWith('/subscriptions'))
+    {
+
+        $managedsubscriptions = (getScope $id)
+    }
+
+    return $m
+}
 
 
 function getAccessToken()
@@ -657,6 +675,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             #Existing role defintion but new subscription
             ls -Recurse -Directory -Path $path |%  {
               
+                  #Write-Host "Looking for $($_.FullName)"
                   [string]$subscriptionScope = getScope (get-item $_.FullName)
              
                   if( 

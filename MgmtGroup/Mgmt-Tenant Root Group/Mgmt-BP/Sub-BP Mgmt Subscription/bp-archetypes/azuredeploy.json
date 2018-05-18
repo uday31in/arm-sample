@@ -37,42 +37,42 @@
     },
 	"networkresourcegroupname": {
       "type": "string",
-      "defaultValue": "bp-wus2-spoke-networking",
+      "defaultValue": "bp-ne-spoke2",
       "metadata": {
         "description": "networkresourcegroupname"
       }
     },
 	"virtualNetworkName": {
       "type": "string",
-      "defaultValue": "bp-wus2-prod-spoke",
+      "defaultValue": "bp-ne-spoke2-vnet",
       "metadata": {
         "description": "virtualNetworkName"
       }
     },
 	"tier1subnetName": {
       "type": "string",
-      "defaultValue": "bp-wus2-prod-web",
+      "defaultValue": "bp-ne-spoke2-prod-web",
       "metadata": {
         "description": "tier1subnetName"
       }
     },
 	"tier1subnetNameIlb": {
       "type": "string",
-      "defaultValue": "bp-wus2-prod-web-ilb",
+      "defaultValue": "bp-ne-spoke2-prod-web-ilb",
       "metadata": {
         "description": "tier1subnetNameIlb"
       }
     },
 	"tier2subnetName": {
       "type": "string",
-      "defaultValue": "bp-wus2-prod-app",
+      "defaultValue": "bp-ne-spoke2-prod-app",
       "metadata": {
         "description": "tier2subnetName"
       }
     },
 	"tier2subnetNameIlb": {
       "type": "string",
-      "defaultValue": "bp-wus2-prod-app-ilb",
+      "defaultValue": "bp-ne-spoke2-prod-ilb",
       "metadata": {
         "description": "tier2subnetNameIlb"
       }
@@ -105,7 +105,7 @@
 		"properties": {
 			"mode": "Incremental",
 			"templateLink":{
-				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/app-patterns/two-tier/xTierDeployment.json"
+				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/MgmtGroup/Mgmt-Tenant%20Root%20Group/Mgmt-BP/Sub-BP%20Mgmt%20Subscription/bp-archetypes/xTierDeployment.json"
 			},
 			"parameters": {
 			
