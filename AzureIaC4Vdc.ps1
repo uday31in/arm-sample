@@ -97,3 +97,5 @@ if($TemplateDeployment)
     
  
 }
+
+Ensure-AzureIaC4VDCTemplateDeployment -deleteifNecessary:$true -path "C:\git\bp\MgmtGroup\Mgmt-Tenant Root Group\Mgmt-BP\Mgmt-BP-Spoke"

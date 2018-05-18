@@ -1359,7 +1359,8 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
 function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $deleteifNecessary = $false)
 {
 
-    
+    <#
+
     Get-ChildItem -Path $path -Recurse -Include Deployment-*.json -Exclude *.parameters.json |% {
 
         
@@ -1434,75 +1435,97 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
     }
     
+    #>
 
     Write-Host "***************************************************"
     Write-Host "*Push Completed for AzureIaC4VDCTemplateDeployment*"
     Write-Host "***************************************************"
 
+    $managedsubscriptions = $null
 
-    $managedsubscriptions = getAllManagementGroupBelowScopeRecursive (getScope (get-item $path))|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
-    $managedsubscriptions += getAllSubscriptionBelowScope -id (getScope (get-item $path)) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
+    if( (getScope (get-item $path)).StartsWith('/providers/Microsoft.Management/managementGroups/'))
+    {
 
+        $managedsubscriptions = getAllManagementGroupBelowScopeRecursive (getScope (get-item $path))|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
+        $managedsubscriptions += getAllSubscriptionBelowScope -id (getScope (get-item $path)) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
+
+    }
+    if( (getScope (get-item $path)).StartsWith('/subscriptions'))
+    {
+
+        $managedsubscriptions = (getScope (get-item $path))
+    }
     #$managedsubscriptions = "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5"
 
-    $managedsubscriptions |% {
+    if($managedsubscriptions.count -gt 0)
+    {
 
-        $effectiveScope = getScope $_
-        $foldername = "Sub-$($(getNamebyID -id $effectiveScope).Trim())"
-        $subscriptionfolder = Get-ChildItem $path -Recurse -Directory |? {$_.BaseName -eq $foldername} 
+        $managedsubscriptions |% {
 
-      
-        $asc_uri= "https://management.azure.com/$($effectiveScope)/resourcegroups?api-version=2017-05-10"
-        $asc_requestHeader = @{
-            Authorization = "Bearer $(getAccessToken)"
-            'Content-Type' = 'application/json'
-        }
+            $effectiveScope = getScope $_
+            $foldername = "Sub-$($(getNamebyID -id $effectiveScope).Trim())"
 
-        $currentRG = ((Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing).content | ConvertFrom-Json).Value
-
-        $currentRG |% {
-
-            $_rgname = $_.name
-            $_location = $_.location
-
-            Write-Host "$effectiveScope\$_location-$_rgname"
-
-            $resourcegrouppath = Get-ChildItem $path -Recurse -Directory |? {$_.Name -eq ("$_location-$_rgname") } 
-
-
-            if($deleteifNecessary -and $resourcegrouppath -eq $null)
+            #Check if it is subscription itself?
+            if( (Get-Item $path |? {$_.BaseName -eq $foldername}).BaseName -eq $foldername )
             {
-                #Delete Resource Group
-                Write-Host "Deleting Resource Group $_rgname at $_location"
-
-                $asc_uri= "https://management.azure.com/$($effectiveScope)/resourcegroups/$($_rgname)?api-version=2017-05-10"
-                $asc_requestHeader = @{
-                    Authorization = "Bearer $(getAccessToken)"
-                    'Content-Type' = 'application/json'
-                }
-
-                Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing
-                Write-Host "Success! Deleting Resource Group $_rgname at $_location"
-                
+                 $subscriptionfolder  = Get-Item $path |? {$_.BaseName -eq $foldername} 
             }
             else
             {
-                #Potentially we can download template and store it as _Deployment
-                if( (test-path -Path (join-path  $subscriptionfolder.FullName  ("$_location-$_rgname"))) -eq $false)
+                $subscriptionfolder = Get-ChildItem $path -Recurse -Directory |? {$_.BaseName -eq $foldername} 
+            }
+      
+            $asc_uri= "https://management.azure.com/$($effectiveScope)/resourcegroups?api-version=2017-05-10"
+            $asc_requestHeader = @{
+                Authorization = "Bearer $(getAccessToken)"
+                'Content-Type' = 'application/json'
+            }
+
+            $currentRG = ((Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing).content | ConvertFrom-Json).Value
+
+            $currentRG |% {
+
+                $_rgname = $_.name
+                $_location = $_.location
+
+                Write-Host "$effectiveScope\$_location-$_rgname"
+
+                $resourcegrouppath = Get-ChildItem $path -Recurse -Directory |? {$_.Name -eq ("$_location-$_rgname") } 
+
+
+                if($deleteifNecessary -and $resourcegrouppath -eq $null)
                 {
-                    Write-Host "Creating Fodler for RG at $(join-path  $subscriptionfolder.FullName  ("$_location-$_rgname"))"
-                    mkdir (join-path  $subscriptionfolder.FullName ("$_location-$_rgname")) -Force -Confirm:$false | out-null
+                    #Delete Resource Group
+                    Write-Host "Deleting Resource Group $_rgname at $_location"
+
+                    $asc_uri= "https://management.azure.com/$($effectiveScope)/resourcegroups/$($_rgname)?api-version=2017-05-10"
+                    $asc_requestHeader = @{
+                        Authorization = "Bearer $(getAccessToken)"
+                        'Content-Type' = 'application/json'
+                    }
+
+                    Invoke-WebRequest -Uri $asc_uri -Method DELETE -Headers $asc_requestHeader -UseBasicParsing
+                    Write-Host "Success! Deleting Resource Group $_rgname at $_location"
+                
+                }
+                else
+                {
+                    #Potentially we can download template and store it as _Deployment
+                    if( (test-path -Path (join-path  $subscriptionfolder.FullName  ("$_location-$_rgname"))) -eq $false)
+                    {
+                        Write-Host "Creating Fodler for RG at $(join-path  $subscriptionfolder.FullName  ("$_location-$_rgname"))"
+                        mkdir (join-path  $subscriptionfolder.FullName ("$_location-$_rgname")) -Force -Confirm:$false | out-null
+                    }
+
                 }
 
             }
 
         }
-
-    }
     
-
+    }#End if managemnet count is gerater than 0.
 
      
 }
 
-#Ensure-AzureIaC4VDCTemplateDeployment -path "C:\git\bp\MgmtGroup\Mgmt-Tenant Root Group\Mgmt-BP\Sub-BP Mgmt Subscription"
+#

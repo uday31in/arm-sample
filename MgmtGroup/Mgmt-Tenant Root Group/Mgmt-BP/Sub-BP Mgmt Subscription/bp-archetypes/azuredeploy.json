@@ -1,0 +1,182 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+	"operatingSystem": {
+      "type": "string",
+      "defaultValue": "Server2016",
+      "metadata": {
+        "description": "Operating System of the Server"
+      },
+      "allowedValues": [
+        "Server2012R2",
+        "Server2016",
+		"Ubuntu"
+      ]
+    },
+	"customData": {
+      "type": "string",
+      "defaultValue": "#cloud-config\n\nruncmd:\n- apt-get update\n- apt-get install nginx -y",
+      "metadata": {
+        "description": "String passed down to the Virtual Machine."
+      }
+	},
+	"tier1NamePrefix": {
+      "type": "string",
+      "defaultValue": "web",
+      "metadata": {
+        "description": "tier1 Name Prefix"
+		}
+    },
+	"tier2NamePrefix": {
+      "type": "string",
+      "defaultValue": "app",
+      "metadata": {
+        "description": "tier1 Name Prefix"
+      }
+    },
+	"networkresourcegroupname": {
+      "type": "string",
+      "defaultValue": "bp-wus2-spoke-networking",
+      "metadata": {
+        "description": "networkresourcegroupname"
+      }
+    },
+	"virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "bp-wus2-prod-spoke",
+      "metadata": {
+        "description": "virtualNetworkName"
+      }
+    },
+	"tier1subnetName": {
+      "type": "string",
+      "defaultValue": "bp-wus2-prod-web",
+      "metadata": {
+        "description": "tier1subnetName"
+      }
+    },
+	"tier1subnetNameIlb": {
+      "type": "string",
+      "defaultValue": "bp-wus2-prod-web-ilb",
+      "metadata": {
+        "description": "tier1subnetNameIlb"
+      }
+    },
+	"tier2subnetName": {
+      "type": "string",
+      "defaultValue": "bp-wus2-prod-app",
+      "metadata": {
+        "description": "tier2subnetName"
+      }
+    },
+	"tier2subnetNameIlb": {
+      "type": "string",
+      "defaultValue": "bp-wus2-prod-app-ilb",
+      "metadata": {
+        "description": "tier2subnetNameIlb"
+      }
+    },
+	"tier1numberOfInstances": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "tier1numberOfInstances"
+      }
+    },
+	"tier2numberOfInstances": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "tier2numberOfInstances"
+      }
+    }	
+   
+  },
+  "variables": {
+   
+  },
+  "resources": [
+   
+   {
+		"apiVersion": "2017-05-10",
+		"name": "[concat(parameters('tier1NamePrefix'), '-deployment')]",
+		"type": "Microsoft.Resources/deployments",		
+		"properties": {
+			"mode": "Incremental",
+			"templateLink":{
+				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/app-patterns/two-tier/xTierDeployment.json"
+			},
+			"parameters": {
+			
+			
+			  "numberOfInstances":{
+					"value": "[parameters('tier1numberOfInstances')]"
+				},
+				"operatingSystem":{
+					"value": "[parameters('operatingSystem')]"
+				},
+				"customData":{
+					"value": "[parameters('customData')]"
+				},
+				"tierXNamePrefix":{
+					"value": "[parameters('tier1NamePrefix')]"
+				},
+				"networkresourcegroupname":{
+					"value": "[parameters('networkresourcegroupname')]"
+				},
+				"virtualNetworkName":{
+					"value": "[parameters('virtualNetworkName')]"
+				},
+				"tierXsubnetName":{
+					"value": "[parameters('tier1subnetName')]"
+				},
+				"tierXsubnetNameIlb":{
+					"value": "[parameters('tier1subnetNameIlb')]"
+				}
+			}
+		}
+    },
+	
+	 {
+		"apiVersion": "2017-05-10",
+		"name": "[concat(parameters('tier2NamePrefix'), '-deployment')]",
+		"type": "Microsoft.Resources/deployments",		
+		"properties": {
+			"mode": "Incremental",
+			"templateLink":{
+				"uri": "https://raw.githubusercontent.com/uday31in/arm-sample/master/app-patterns/two-tier/xTierDeployment.json"
+			},
+			"parameters": {
+				"numberOfInstances":{
+					"value": "[parameters('tier2numberOfInstances')]"
+				},
+				"operatingSystem":{
+					"value": "[parameters('operatingSystem')]"
+				},
+				"customData":{
+					"value": "[parameters('customData')]"
+				},
+				"tierXNamePrefix":{
+					"value": "[parameters('tier2NamePrefix')]"
+				},
+				"networkresourcegroupname":{
+					"value": "[parameters('networkresourcegroupname')]"
+				},
+				"virtualNetworkName":{
+					"value": "[parameters('virtualNetworkName')]"
+				},
+				"tierXsubnetName":{
+					"value": "[parameters('tier2subnetName')]"
+				},
+				"tierXsubnetNameIlb":{
+					"value": "[parameters('tier2subnetNameIlb')]"
+				}
+			}
+		}
+    }
+   
+   	
+	
+  ]
+}

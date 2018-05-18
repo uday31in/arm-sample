@@ -1,0 +1,517 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+	 "operatingSystem": {
+      "type": "string",
+      "defaultValue": "Server2016",
+      "metadata": {
+        "description": "Operating System of the Server"
+      },
+      "allowedValues": [
+        "Server2012R2",
+        "Server2016"
+      ]
+    },
+	"tier1VMSubnetRef": {
+      "type": "string",
+      "defaultValue": "/subscriptions/83253e08-8e4a-4bff-9032-c4e8bc57e2fb/resourceGroups/bp-ne-spoke2/providers/Microsoft.Network/virtualNetworks/bp-ne-spoke2-vnet/subnets/bp-ne-spoke2-prod-web"
+	},
+	"tier1IlbSubnetRef": {
+      "type": "string",
+      "defaultValue": "/subscriptions/83253e08-8e4a-4bff-9032-c4e8bc57e2fb/resourceGroups/bp-ne-spoke2/providers/Microsoft.Network/virtualNetworks/bp-ne-spoke2-vnet/subnets/bp-ne-spoke2-prod-web-ilb"
+	},
+	"tier2NamePrefix": {
+      "type": "string",
+      "defaultValue": "/subscriptions/83253e08-8e4a-4bff-9032-c4e8bc57e2fb/resourceGroups/bp-ne-spoke2/providers/Microsoft.Network/virtualNetworks/bp-ne-spoke2-vnet/subnets/bp-ne-spoke2-prod-web"
+	}
+	"tier2NamePrefix": {
+      "type": "string",
+      "defaultValue": "/subscriptions/83253e08-8e4a-4bff-9032-c4e8bc57e2fb/resourceGroups/bp-ne-spoke2/providers/Microsoft.Network/virtualNetworks/bp-ne-spoke2-vnet/subnets/bp-ne-spoke2-prod-web"
+	}
+	
+	
+   
+  },
+  "variables": {
+    
+    "storageAccountType": "Standard_LRS",
+    "numberOfInstances": 2,    
+	"vmSize" : "Standard_DS1",
+	"tier1NamePrefix": "web",
+	"tier1VMSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-web",
+	"tier1IlbSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-web-ilb",
+	"tier1lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier1NamePrefix'),'-ilb')]",
+	"tier1lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier1NamePrefix'),'-ilb'))]",
+	"tier1asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier1NamePrefix'),'-asg'))]",
+	"tier1nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier1NamePrefix'),'-nsg'))]",
+	
+	"tier2NamePrefix": "app",
+	"tier2NamePrefix":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-app",
+	"tier2IlbSubnetRef":  "/subscriptions/ffec384a-4758-4547-aeba-605759d5bf79/resourceGroups/upstream-ne-prod/providers/Microsoft.Network/virtualNetworks/ne-prod/subnets/ne-prod-app-ilb",
+	"tier2lbname": "[concat('Microsoft.Network/loadBalancers/', variables('tier2NamePrefix'),'-ilb')]",
+	"tier2lbID": "[resourceId('Microsoft.Network/loadBalancers', concat(variables('tier2NamePrefix'),'-ilb'))]",
+	"tier2asgID": "[resourceId('Microsoft.Network/applicationSecurityGroups',concat(variables('tier2NamePrefix'),'-asg'))]",
+	"tier2nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',concat(variables('tier2NamePrefix'),'-nsg'))]",
+		
+	"tier3NamePrefix": "db",
+	"operatingSystemValues": {
+      "Server2012R2": {
+        "PublisherValue": "MicrosoftWindowsServer",
+        "OfferValue": "WindowsServer",
+        "SkuValue": "2012-R2-Datacenter"
+      },
+      "Server2016": {
+        "PublisherValue": "MicrosoftWindowsServer",
+        "OfferValue": "WindowsServer",
+        "SkuValue": "2016-Datacenter"
+      },
+	  "Ubuntu": {
+		  "publisher": "Canonical",
+		  "offer": "UbuntuServer",
+		  "sku": "16.04.0-LTS",
+		  "version": "latest"
+	  }
+    },
+	"adminUsername": "uday",
+	"adminPassword": "!!123abc!!123abc"
+  },
+  "resources": [
+   
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[concat(variables('tier1NamePrefix'),'-av')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2,
+        "managed": true
+      }
+    },
+	
+	{
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[concat(variables('tier2NamePrefix'),'-av')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2,
+        "managed": true
+      }
+    },
+	
+	
+	{
+	  "name": "[concat(variables('tier1NamePrefix'), '-asg')]",
+	  "type": "Microsoft.Network/applicationSecurityGroups",
+	  "apiVersion": "2017-10-01",
+	  "location": "[resourceGroup().location]",
+	  "tags": {},
+	  "properties": {}
+	},
+	
+	{
+	  "name": "[concat(variables('tier2NamePrefix'), '-asg')]",
+	  "type": "Microsoft.Network/applicationSecurityGroups",
+	  "apiVersion": "2017-10-01",
+	  "location": "[resourceGroup().location]",
+	  "tags": {},
+	  "properties": {}
+	},
+	
+	{
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[concat(variables('tier1NamePrefix'), '-nsg')]",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+	  "dependsOn": [
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier1NamePrefix'),'-asg')]"
+      ],      
+      "properties": {
+        "securityRules": [
+          {
+            "name": "[concat('Allow',variables('tier2NamePrefix'), 'to' , variables('tier1NamePrefix') )]",
+            "properties": {
+              "description": "[concat('Allow',variables('tier2NamePrefix'), 'to' , variables('tier1NamePrefix') )]",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+			  "sourceApplicationSecurityGroups" : [
+				{
+					"id" : "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier2NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "destinationApplicationSecurityGroups": [
+				{
+					"id": "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier1NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+	    ]
+	  }
+    },
+	
+	{
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[concat(variables('tier2NamePrefix'), '-nsg')]",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+	  "dependsOn": [
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('tier2NamePrefix'),'-asg')]"
+      ],      
+      "properties": {
+        "securityRules": [
+          {
+            "name": "[concat('Allow',variables('tier2NamePrefix'), 'to' , variables('tier2NamePrefix') )]",
+            "properties": {
+              "description": "[concat('Allow',variables('tier2NamePrefix'), 'to' , variables('tier2NamePrefix') )]",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+			  "sourceApplicationSecurityGroups" : [
+				{
+					"id" : "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier2NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "destinationApplicationSecurityGroups": [
+				{
+					"id": "[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier2NamePrefix'),'-asg'))]"
+				}
+			  ],
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+	    ]
+	  }
+    },
+	
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('tier1NamePrefix'),'-nic-', copyindex(1))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nicLoop",
+        "count": "[variables('numberOfInstances')]"
+      },
+      "dependsOn": [
+        "[variables('tier1lbname')]",
+		"[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier1NamePrefix'),'-asg'))]"
+      ],
+      "properties": {
+		
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('tier1VMSubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(variables('tier1lbID'), '/backendAddressPools/BackendPool1')]"
+                }
+              ],
+			  "applicationSecurityGroups" : [
+		        {
+					"id": "[variables('tier1asgID')]" 
+				}
+			  ]
+            }
+          }
+        ],
+		"networkSecurityGroup": {
+			"id": "[variables('tier1nsgID')]"
+		}
+      }
+    },
+	
+	{
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('tier2NamePrefix'),'-nic-', copyindex(1))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nicLoop",
+        "count": "[variables('numberOfInstances')]"
+      },
+      "dependsOn": [
+        "[variables('tier2lbname')]",
+		"[resourceId('Microsoft.Network/applicationSecurityGroups', concat(variables('tier2NamePrefix'),'-asg'))]"
+      ],
+      "properties": {
+		
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('tier2VMSubnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(variables('tier2lbID'), '/backendAddressPools/BackendPool1')]"
+                }
+              ],
+			  "applicationSecurityGroups" : [
+		        {
+					"id": "[variables('tier2asgID')]" 
+				}
+			  ]
+            }
+          }
+        ],
+		"networkSecurityGroup": {
+			"id": "[variables('tier2nsgID')]"
+		}
+      }
+    },
+	
+	
+	
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[concat(variables('tier1NamePrefix'),'-ilb')]",
+      "location": "[resourceGroup().location]",     
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "properties": {
+              "subnet": {
+                "id": "[variables('tier1IlbSubnetRef')]"
+              }
+              
+            },
+            "name": "LoadBalancerFrontend"
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "BackendPool1"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat( variables('tier1lbID'),'/frontendIpConfigurations/LoadBalancerFrontend')]"
+				
+              },
+              "backendAddressPool": {
+			    "id": "[concat( variables('tier1lbID'), '/backendAddressPools/BackendPool1')]"
+                
+              },
+              "probe": {
+				"id": "[concat(variables('tier1lbID'), '/probes/lbprobe')]"                
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 15
+            },
+            "Name": "lbrule"
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            },
+            "name": "lbprobe"
+          }
+        ]
+      }
+    },
+	
+	
+	{
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[concat(variables('tier2NamePrefix'),'-ilb')]",
+      "location": "[resourceGroup().location]",     
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "properties": {
+              "subnet": {
+                "id": "[variables('tier2IlbSubnetRef')]"
+              }
+              
+            },
+            "name": "LoadBalancerFrontend"
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "BackendPool1"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat( variables('tier2lbID'),'/frontendIpConfigurations/LoadBalancerFrontend')]"
+				
+              },
+              "backendAddressPool": {
+			    "id": "[concat( variables('tier2lbID'), '/backendAddressPools/BackendPool1')]"
+                
+              },
+              "probe": {
+				"id": "[concat(variables('tier2lbID'), '/probes/lbprobe')]"                
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 15
+            },
+            "Name": "lbrule"
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            },
+            "name": "lbprobe"
+          }
+        ]
+      }
+    },
+	
+	
+
+	{
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('tier1NamePrefix'), 'vm', copyIndex(1))]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "VMcopy",
+        "count": "[variables('numberOfInstances')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('operatingSystemValues')[parameters('operatingSystem')].PublisherValue]",
+            "offer": "[variables('operatingSystemValues')[parameters('operatingSystem')].OfferValue]",
+            "sku": "[variables('operatingSystemValues')[parameters('operatingSystem')].SkuValue]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(variables('tier1NamePrefix'),'vm',copyIndex(1))]",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "caching": "ReadWrite"
+          }
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('tier1NamePrefix'),'vm',copyIndex(1))]",
+          "adminUsername": "[variables('adminUsername')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          },
+          "secrets": [],
+          "adminPassword": "[variables('adminPassword')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('tier1NamePrefix'),'-nic-', copyindex(1)))]"
+            }
+          ]
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('tier1NamePrefix'),'-av'))]"
+        }
+       
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/availabilitySets/', concat(variables('tier1NamePrefix'),'-av'))]",
+		"[concat('Microsoft.Network/networkSecurityGroups/', concat(variables('tier1NamePrefix'),'-nsg'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('tier1NamePrefix'),'-nic-', copyindex(1)))]"
+      ]
+    },
+	
+	{
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('tier2NamePrefix'), 'vm', copyIndex(1))]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "VMcopy",
+        "count": "[variables('numberOfInstances')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('operatingSystemValues')[parameters('operatingSystem')].PublisherValue]",
+            "offer": "[variables('operatingSystemValues')[parameters('operatingSystem')].OfferValue]",
+            "sku": "[variables('operatingSystemValues')[parameters('operatingSystem')].SkuValue]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(variables('tier2NamePrefix'),'vm',copyIndex(1))]",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "caching": "ReadWrite"
+          }
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('tier2NamePrefix'),'vm',copyIndex(1))]",
+          "adminUsername": "[variables('adminUsername')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          },
+          "secrets": [],
+          "adminPassword": "[variables('adminPassword')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('tier2NamePrefix'),'-nic-', copyindex(1)))]"
+            }
+          ]
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('tier2NamePrefix'),'-av'))]"
+        }
+       
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/availabilitySets/', concat(variables('tier2NamePrefix'),'-av'))]",
+		"[concat('Microsoft.Network/networkSecurityGroups/', concat(variables('tier2NamePrefix'),'-nsg'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('tier2NamePrefix'),'-nic-', copyindex(1)))]"
+      ]
+    }
+	
+	
+  ]
+}
