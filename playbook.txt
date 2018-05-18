@@ -62,6 +62,12 @@ az vm create -g $rgname --name $rgname-vm1 --admin-username uday --admin-passwor
 
 
 
+az account set --subscription "BP Spoke for North Europe"
+location="northeurope"
+rgname="bp-ne-app3"
+az group create --name "$rgname" --location $location
+az vm create -g $rgname --name $rgname-vm1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-ne-spoke1 --vnet-name  bp-ne-spoke1-vnet --name appsubnet --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
+
 
 
 

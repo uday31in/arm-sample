@@ -137,7 +137,10 @@ function getScope([System.io.DirectoryInfo] $name)
             ((getScope $name.Parent.Name).startswith('/subscriptions') -eq $true)
         )
       {
-             return "$(getScope ($name.Parent.Name))/resourcegroups/$($scope)"
+             $location =  ($name.Name).Split('-')[0]          
+             $rgname = ($name.Name).Replace("$location-" , "")
+             
+             return "$(getScope ($name.Parent.Name))/resourcegroups/$($rgname)"
              
       }
 
@@ -383,9 +386,11 @@ function Ensure-RoleAssignmentAtScope ( $_objectid = '643c93b7-85df-4ea0-8a11-ce
         New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
         Write-Host "Success! New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
 
-
-        Write-Host "Copying File To  $($_.FullName) from $($model.FullName)"
-        copy $model $destination -Force
+        if (-not ([string]::IsNullOrEmpty($model)))
+        {
+            Write-Host "Copying File To  $($_.FullName) from $($model.FullName)"
+            copy $model $destination -Force
+        }
        
     }
     else
@@ -412,12 +417,9 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             Write-Host $effectiveScope
             Write-Host $_.FullName
 
-            #$model = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\RoleAssignment-Uday Pandya.json"
-
-
+        
             $model = $_.FullName
             $model = get-item $model
-
 
             $RoleAssignmentJson = Get-Content -Path $model | Out-String | ConvertFrom-Json
 
@@ -431,9 +433,6 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 
             if($effectiveScope.StartsWith('/providers/Microsoft.Management/managementGroups/'))
             {
-                
-                    #$managedsubscriptions = (getAllManagementGroupBelowScopeRecursive -id $effectiveScope)|? {$_ -ne '' -and $_ -ne $null} |% { getAllSubscriptionBelowScope -id $_}
-                    #$managedsubscriptions += (getAllSubscriptionBelowScope -id $effectiveScope) |? {$_ -ne '' -and $_ -ne $null} |% { getScope $_ } 
                     
                     ls $model.PSParentPath -Directory -Recurse -Filter sub-*  |% {
 
@@ -457,32 +456,8 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
             else
             {
                    
-                Ensure-RoleAssignmentAtScope -effectiveScope $effectiveScope -_objectid:$_objectid -_roledefinitionid:$_roledefinitionid
-                
-                <#
-                $asc_uri= "https://management.azure.com/$effectiveScope/providers/Microsoft.Authorization/roleAssignments?`$filter=principalId eq `'$_objectid`'`&api-version=2018-01-01-preview"
-                $asc_requestHeader = @{
-                    Authorization = "Bearer $(getAccessToken)"
-                    'Content-Type' = 'application/json'
-                }
-
-                $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
-                $roleAssignmentsJson = ($response.content | ConvertFrom-Json).Value
-            
-                $assignment = $roleAssignmentsJson |? { ($_.properties.scope -eq $effectiveScope) -and
-                                            (($_.properties.roledefinitionid) -match ($_roledefinitionid))
-                                        }
-                    
-                #Write-Host "Calling Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-                #$assignment  = Get-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
-                if($assignment -eq $null)
-                {
-                    Write-Host "calling New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-                    New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid
-                    Write-Host "Success! New-AzureRmRoleAssignment -Scope $effectiveScope -ObjectId $_objectid  -RoleDefinitionId  $_roledefinitionid"
-                }
-                #>
-                  
+                Ensure-RoleAssignmentAtScope -effectiveScope $effectiveScope -_objectid:$_objectid -_roledefinitionid:$_roledefinitionid     
+                           
             }
             Write-Host "Success! $($_.FullName)"
     }
@@ -529,8 +504,12 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
                 }
 
                 $roldefinition =  (Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -id  (($_.properties.roleDefinitionId -split '/' ) | select -Last 1)).Name
+
+                $roldefinitionfilename = $("RoleAssignment-$($aaduser)-$roldefinition.json")
+                [IO.Path]::GetinvalidFileNameChars() | ForEach-Object {$roldefinitionfilename = $roldefinitionfilename.Replace($_," ")}
             
-                $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $("RoleAssignment-$($aaduser)-$roldefinition.json"))
+                $roldefinitionFilePath  = $(join-path  $folderlocation -ChildPath $roldefinitionfilename)
+                
             
             
                 if($deleteifNecessary -and (Test-Path $roldefinitionFilePath) -eq $false)
@@ -619,6 +598,7 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
 
             $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID"  -Name $RoleDefintionJson.Name 
+
             if(-not $RoleDefintion)
             {
 
@@ -713,9 +693,9 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
     Write-Host "***********************************************"
 
     
-    Write-Host "Waiting for 90 seconds to Update Role Defintiion"
-    Start-Sleep -Seconds 90
-    Write-Host "Waiting for 90 seconds to Update Role Defintiion"
+    Write-Host "Waiting for 180 seconds to Update Role Defintiion"
+    Start-Sleep -Seconds 180
+    Write-Host "Waiting for 180 seconds to Update Role Defintiion"
        
 
 
