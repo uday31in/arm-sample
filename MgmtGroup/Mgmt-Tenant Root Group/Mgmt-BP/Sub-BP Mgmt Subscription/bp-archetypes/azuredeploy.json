@@ -72,7 +72,7 @@
     },
 	"tier2subnetNameIlb": {
       "type": "string",
-      "defaultValue": "bp-ne-spoke2-prod-ilb",
+      "defaultValue": "bp-ne-spoke2-prod-app-ilb",
       "metadata": {
         "description": "tier2subnetNameIlb"
       }
