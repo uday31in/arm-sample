@@ -1,27 +1,5 @@
 # Creating Hub
 
-rgname="bp-wus2-hub-networking"
-location="westus2"
-az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/hub/azuredeploy.json --parameters /data/mgmt/networking/hub/azuredeploy.parameters.json
-
-
-
-# Creating Spoke VNet
-
-az account set --subscription "BP Service (Spoke)"
-rgname="bp-wus2-spoke-networking"
-location="westus2"
-az group create --name "$rgname" --location $location
-az group deployment create --name  "$rgname-hub-network-deployment" --resource-group "$rgname" --template-file /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.json --parameters /data/mgmt/networking/spoke-shared-subnet-asg/azuredeploy.parameters.json
-
-# Creating vNet Peering
-
-az group deployment create --name  "$rgname-hub-spoke-peering" --resource-group "$rgname" --template-file /data/mgmt/networking/peering/azuredeploy.json --parameters /data/mgmt/networking/peering/azuredeploy.parameters.json
-
-#az group delete --name $rgname --no-wait --yes
-
-
 
 #creating ase
 az account set --subscription "BP Service (Spoke)"
@@ -69,6 +47,12 @@ az group create --name "$rgname" --location $location
 az vm create -g $rgname --name $rgname-vm1 --admin-username uday --admin-password '!!123abc!!123abc' --subnet $(az network vnet subnet show -g bp-ne-spoke1 --vnet-name  bp-ne-spoke1-vnet --name appsubnet --query id -o tsv) --image Win2016Datacenter --public-ip-address '' --no-wait
 
 
+az account set --subscription "BP Spoke for North Europe"
+location="northeurope"
+az network vnet subnet create -g bp-ne-spoke1 --vnet-name  bp-ne-spoke1-vnet --name bp-my-appsubnet --address-prefix 10.4.2.128/28
+
+az network vnet subnet create -g MyResourceGroup --vnet-name MyVnet -n MySubnet \
+                            --address-prefix 10.0.0.0/24 --network-security-group MyNsg --route-table MyRouteTable
 
 
 az account set --subscription "BP Service (Spoke)"
