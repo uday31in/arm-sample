@@ -15,7 +15,7 @@
 
 $mgmtroot = 'Mgmt-Tenant Root Group'
 $mgmtSubscriptionID = 'bb81881b-d6a7-4590-b14e-bb3c575e42c5'
-$omsWorkspaceId = "/subscriptions/926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4/resourcegroups/bp-oms-europe/providers/Microsoft.OperationalInsights/workspaces/bp-oms-westeurope"
+$omsWorkspaceId = "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-oms-europe/providers/Microsoft.OperationalInsights/workspaces/bp-oms-westeurope"
 
 if($env:BUILD_SOURCESDIRECTORY)
 {
