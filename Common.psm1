@@ -317,13 +317,12 @@ function New-IAC4DCASubsriptionProvisioning(    $subscriptionName = "BP Hub for 
 
             $subscription = New-AzureRmSubscription -Name $subscriptionName -OfferType $offerType -OwnerObjectId $vstsAAObjectID -EnrollmentAccountObjectId (Get-AzureRmEnrollmentAccount)[0].ObjectId
 
-            #$subscription = New-AzureRmSubscriptionDefinition  -Name $subscriptionName  -OfferType $offerType -SubscriptionDisplayName $SubscriptionDisplayName
             Write-Host "Creating new subscription Success!"
 
 
             # Assign Subscription to its Management Group .
             # $subscription =Get-AzureRmSubscriptionDefinition -Name $subscriptionName1
-            #New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
+            New-AzureRmManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
         }
         else
         {
@@ -332,7 +331,7 @@ function New-IAC4DCASubsriptionProvisioning(    $subscriptionName = "BP Hub for 
         }
 
 
-
+        <#
         $asconfig = @{
              Uri = "https://management.azure.com/subscriptions/$($subscription.SubscriptionId)/providers/Microsoft.Security/register?api-version=2017-05-10"
              Headers = @{
@@ -376,7 +375,7 @@ function New-IAC4DCASubsriptionProvisioning(    $subscriptionName = "BP Hub for 
 
         Invoke-WebRequest @asconfig
 
-        
+        #>
 
 }
 
@@ -773,7 +772,6 @@ function Ensure-IAC4DCARoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f
 
 
 
-
 function Write-PolicyAssignmentAtScope ($path, $effectiveScope, 
                                         $policydefinitionID, 
                                         $deleteifNecessary = $false)
@@ -1043,6 +1041,18 @@ function Ensure-IAC4DCAMgmtandSubscriptions($path = '',
                                                  $workspaceId = ""
                                                  )
 {
+
+    #Must Start Fresh and invalidat cache
+
+    $global:AzureRmManagementGroup = (Get-AzureRmManagementGroup) |% { Get-AzureRmManagementGroup -GroupName $_.Name -Expand } 
+    $AzureRmManagementGroup |% {
+
+        Write-Host "Mgmt Group Name: $($_.Name) ID: $($_.Id)"
+
+    }
+     
+
+ 
      ls -Recurse -Directory -Path $pathtoManangementGroup |%    {
 
                 $effectiveScope = getScope $_.fullname
@@ -1082,11 +1092,13 @@ function Ensure-IAC4DCAMgmtandSubscriptions($path = '',
 
                         if($currentMgmtGroupParentName -ne $desiredMgmtGroupParentName)
                         {
-                            Write-Host "Chanign Mgmt group from $currentMgmtGroupParentName to $desiredMgmtGroupParentName"
+                            Write-Host "Changing Mgmt group from $currentMgmtGroupParentName to $desiredMgmtGroupParentName"
                             $subscriptionid = $effectiveScope -split ('/') | select -Last 1
                             New-AzureRmManagementGroupSubscription -GroupName $desiredMgmtGroupParentName -SubscriptionId $subscriptionid
                             
                         }
+
+                        <#
 
                         $subscription = Get-AzureRmSubscription -SubscriptionName $subscriptionname
 
@@ -1172,6 +1184,7 @@ function Ensure-IAC4DCAMgmtandSubscriptions($path = '',
                                     }
                                 Invoke-WebRequest @activitylog
                         }
+                        #>
 
                     }
 
@@ -1470,7 +1483,7 @@ function Ensure-IAC4DCATemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $delet
                     }
                 }
 
-                $deploymentname = $(get-date -Format "yy-MM-dd-HH-mm-ss") + $model.BaseName
+                $deploymentname = $(get-date -Format "yy-MM-dd-HH-mm-ss") + "-" + $model.BaseName
 
                 $asc_uri= "https://management.azure.com/$($effectiveScope.replace("$location-" , ''))/providers/Microsoft.Resources/deployments/$($deploymentname)?api-version=2017-05-10"
                 $asc_requestHeader = @{
