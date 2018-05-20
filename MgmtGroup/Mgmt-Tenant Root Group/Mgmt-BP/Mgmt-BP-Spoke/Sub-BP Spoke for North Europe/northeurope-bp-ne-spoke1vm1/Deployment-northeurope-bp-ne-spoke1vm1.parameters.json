@@ -1,0 +1,32 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "bp-nespk1vm1"
+    },
+    "adminUsername": {
+      "value": "bpadmin"
+    },    
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ne-kv/providers/Microsoft.KeyVault/vaults/bp-ne-mgmtkv"
+        },
+        "secretName": "bppassword"
+      }
+    },
+    "vnetName": {
+      "value": "bp-ne-spoke1-vnet"
+    },    
+    "subnetName": {
+      "value": "appsubnet"
+    },
+    "vnetResourceGroup": {
+      "value": "bp-ne-spoke1"
+    },
+    "vnetSubscriptionId": {
+      "value": "c14f781e-159f-45b9-9538-56d9dd32d5e0"
+    }      
+  }
+}
