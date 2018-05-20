@@ -89,6 +89,8 @@ if (Get-Module -ListAvailable -Name AzureRM.Billing) {
 Import-Module AzureRM.ManagementGroups -Force
 
 
+$iac4dca = Select-AzureRMSubscription ((Get-AzureRmContext).Subscription.Name) –Name "iac4dca" -Force -Confirm:$false
+
 if($AzureRmManagementGroup -eq $null )
 {
 
@@ -293,12 +295,14 @@ function getAccessToken()
 }
 
 
-function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub for North Europe", 
-                                                     $SubscriptionDisplayName = "BP Hub for North Europe",
-                                                     $ManagementGroupName = "BP-Hub",
-                                                     $offerType = "MS-AZR-0017P",
-                                                     $EnrollmentAccountObjectId = 'b38a3dad-9e2d-4ed7-81be-6851bc292fa9'
-                                                 )
+function New-IAC4DCASubsriptionProvisioning(    $subscriptionName = "BP Hub for North Europe", 
+                                                $SubscriptionDisplayName = "BP Hub for North Europe",
+                                                $ManagementGroupName = "BP-Hub",
+                                                $offerType = "MS-AZR-0017P",
+                                                $EnrollmentAccountObjectId = 'b38a3dad-9e2d-4ed7-81be-6851bc292fa9',
+                                                $workspaceid = ""
+                                                
+                                            )
 {
         $managementGrpName= $ManagementGroupName
 
@@ -353,7 +357,7 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
 
             properties= @{
 
-                workspaceId = "/subscriptions/926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4/resourcegroups/bp-azure-oms/providers/microsoft.operationalinsights/workspaces/bp-ws-1000"
+                workspaceId = $workspaceid
                 scope = "/subscriptions/$($subscription.SubscriptionId)"
             }
         } | ConvertTo-Json
@@ -372,6 +376,7 @@ function New-AzureIaC4VdcSubsriptionProvisioning(    $subscriptionName = "BP Hub
 
         Invoke-WebRequest @asconfig
 
+        
 
 }
 
@@ -419,7 +424,7 @@ function Ensure-RoleAssignmentAtScope ( $_objectid = '643c93b7-85df-4ea0-8a11-ce
 }
 
 
-function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\",
+function Ensure-IAC4DCARoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\",
                                             $mgmtSubscriptionID = "bb81881b-d6a7-4590-b14e-bb3c575e42c5",
                                             $deleteifNecessary=$false)
 {
@@ -481,7 +486,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
     }
 
     Write-Host "***********************************************"
-    Write-host "AzureIaC4VDCRoleAssignment - Push Completed"
+    Write-host "IAC4DCARoleAssignment - Push Completed"
     Write-Host "***********************************************"
 
     [array] $effectivepath  = (Get-Item -Path $path)
@@ -589,7 +594,7 @@ function Ensure-AzureIaC4VDCRoleAssignment ($path = "C:\git\bp\MgmtGroup\b2a0bb8
 }
 
 
-function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
+function Ensure-IAC4DCARoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\", 
                                             $deleteifNecessary=$false,
                                             $mgmtSubscriptionID = "bb81881b-d6a7-4590-b14e-bb3c575e42c5",
                                             $mgmtSubscriptionPath = "")
@@ -613,10 +618,23 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
          $RoleDefintionJson.Name = $_.BaseName -replace ('RoleDefinition-' , '')
          $RoleDefintionJson.Description = $_.BaseName -replace ('RoleDefinition-' , '')
         
+            
+            
+            $asc_uri= "https://management.azure.com/subscriptions/$mgmtSubscriptionID/providers/Microsoft.Authorization/roleDefinitions?`$filter=roleName eq `'$($RoleDefintionJson.Name)`'&api-version=2018-01-01-preview"
+            $asc_requestHeader = @{
+                Authorization = "Bearer $(getAccessToken)"
+                'Content-Type' = 'application/json'
+            }
+
+            Write-Host "Retriving Role Assignment from $asc_uri"
+
+            $response = Invoke-WebRequest -Uri $asc_uri -Method Get -Headers $asc_requestHeader -UseBasicParsing -ContentType "application/json"
+            $RoleDefintion = ($response.content | ConvertFrom-Json).Value
+
+            <#            
             Write-Host "Get-AzureRmRoleDefinition -Scope /subscriptions/$mgmtSubscriptionID -Name $($RoleDefintionJson.Name)"
-
             $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID"  -Name $RoleDefintionJson.Name 
-
+            #>
             if(-not $RoleDefintion)
             {
 
@@ -663,13 +681,13 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
 
                 Invoke-WebRequest -Uri $asc_uri -Method Put -Headers $asc_requestHeader -Body ($myObject | ConvertTo-Json -Depth 100) -UseBasicParsing -ContentType "application/json"
 
-                $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name 
+                $RoleDefintion =  Get-AzureRmRoleDefinition -Scope "/subscriptions/$mgmtSubscriptionID" -Name $RoleDefintionJson.Name -DefaultProfile:$iac4dca
 
                 Write-Host "Role Definition Created Successfully at scope /subscriptions/$mgmtSubscriptionID"
                 $RoleDefintion | ConvertTo-Json -Depth 100  | % { [System.Text.RegularExpressions.Regex]::Unescape($_) } | Out-File $model  -Force
             }
             
-            #reading  from the desired store. What we read earlier is not compatible GET != SET for Role Definition
+            #reading  from the desired store. What was read earlier is not compatible GET != SET for Role Definition
             $RoleDefintion = Get-Content -Path $model | Out-String | ConvertFrom-Json
 
             #Existing role defintion but new subscription
@@ -700,7 +718,9 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
             
 
             #Setting  from the desired stor with updated subscription scope.
-            $updatedRoleDefinition = Set-AzureRmRoleDefinition -InputFile $model
+            $updatedRoleDefinition = Set-AzureRmRoleDefinition -InputFile $model -DefaultProfile:$iac4dca
+
+
             Write-Host "Role Definition Updated Successfully at scope /subscriptions/$mgmtSubscriptionID"
      
         }
@@ -708,13 +728,13 @@ function Ensure-AzureIaC4VDCRoleDefinition ( $path = "C:\git\bp\MgmtGroup\b2a0bb
     }
 
     Write-Host "***********************************************"
-    Write-host "AzureIaC4VDCRoleDefinition - Push Completed"
+    Write-host "IAC4DCARoleDefinition - Push Completed"
     Write-Host "***********************************************"
 
     
-    Write-Host "Waiting for 180 seconds to Update Role Defintiion"
+    Write-Host "Waiting for 180 seconds to Update Role Definition"
     Start-Sleep -Seconds 180
-    Write-Host "Waiting for 180 seconds to Update Role Defintiion"
+    Write-Host "Complete Waiting for 180 seconds to Update Role Definition"
        
 
 
@@ -804,7 +824,7 @@ function Write-PolicyAssignmentAtScope ($path, $effectiveScope,
 }
 
 
-function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', 
+function Ensure-IAC4DCAPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', 
                                                $effectiveScope = $(getScope $path) ,
                                                 $deleteifNecessary = $false,
                                                 $recurse = $true )
@@ -861,7 +881,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 
     
     Write-Host "***********************************************"
-    Write-host "AzureIaC4VDCPolicyAssignments - Push Completed"
+    Write-host "IAC4DCAPolicyAssignments - Push Completed"
     Write-Host "***********************************************"
 
 
@@ -907,7 +927,7 @@ function Ensure-AzureIaC4VDCPolicyAssignments ($path = 'C:\git\bp\MgmtGroup\b2a0
 }
 
 
-function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', $effectiveScope = $(getScope $path), $deleteifNecessary = $false)
+function Ensure-IAC4DCAPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0bb8e-3f26-47f8-9040-209289b412a8\BP\BP-Spoke', $effectiveScope = $(getScope $path), $deleteifNecessary = $false)
 {
 
     Get-ChildItem -Path $path -Recurse -Include PolicyDefinition-*.json |% {
@@ -1017,10 +1037,10 @@ function Ensure-AzureIaC4VDCPolicyDefinitions ($path = 'C:\git\bp\MgmtGroup\b2a0
 }
 
 
-function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '', 
+function Ensure-IAC4DCAMgmtandSubscriptions($path = '', 
                                                  $pathtoManangementGroup = '',
                                                  $deleteifNecessary = $false, 
-                                                 $workspaceId = "/subscriptions/926ab52d-a877-4db3-b0f9-2e9f8ecbe4c4/resourcegroups/bp-azure-oms/providers/microsoft.operationalinsights/workspaces/bp-ws-1000"
+                                                 $workspaceId = ""
                                                  )
 {
      ls -Recurse -Directory -Path $pathtoManangementGroup |%    {
@@ -1128,6 +1148,30 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
                         Invoke-WebRequest @asconfig
 
 
+                        $mgmtSubcription =  ($workspaceId -split '/')[2]
+                        #Igoring management subscription
+                        if(-not ($subscription.SubscriptionId) -match $mgmtGroupName)
+                        {
+                            $acrivitylogbody = @{
+	                                                kind =  "AzureActivityLog"
+	                                                properties =@{
+		                
+                                                            linkedResourceId = "/subscriptions/$($subscription.SubscriptionId)/providers/microsoft.insights/eventtypes/management"
+	                                                }
+                                                } | ConvertTo-Json
+
+                                $activitylog = @{
+                                    Uri = "https://management.azure.com/$workspaceid/datasources/$(($subscription.SubscriptionId).Replace('-',''))?api-version=2015-11-01-preview"
+                                    Headers = @{
+                                        Authorization = "Bearer $(getAccessToken)"
+                                        'Content-Type' = 'application/json'
+                                        }
+                                        Method = 'Put'
+                                        UseBasicParsing = $true
+                                        Body = $acrivitylogbody
+                                    }
+                                Invoke-WebRequest @activitylog
+                        }
 
                     }
 
@@ -1152,10 +1196,10 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
                         $_mgmtgroupname = ($_.Parent.BaseName -ireplace ('Mgmt-', '') )
                         $_subscriptionname = ($_.BaseName -ireplace ('Sub-', ''))
 
-                        Write-Host "Calling: New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname"
+                        Write-Host "Calling: New-IAC4DCASubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname"
 
                         #$DebugPreference="Continue"
-                        New-AzureIaC4VdcSubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
+                        New-IAC4DCASubsriptionProvisioning -subscriptionName $_subscriptionname -SubscriptionDisplayName $_subscriptionname -ManagementGroupName $_mgmtgroupname
                         #$DebugPreference="SilentlyContinue"
 
                     }
@@ -1375,10 +1419,10 @@ function Ensure-AzureIaC4VDCMgmtandSubscriptions($path = '',
 
 
 
-function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $deleteifNecessary = $false)
+function Ensure-IAC4DCATemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $deleteifNecessary = $false)
 {
 
-    <#
+    
 
     Get-ChildItem -Path $path -Recurse -Include Deployment-*.json -Exclude *.parameters.json |% {
 
@@ -1454,10 +1498,10 @@ function Ensure-AzureIaC4VDCTemplateDeployment ($path = 'C:\git\bp\MgmtGroup', $
 
     }
     
-    #>
+   
 
     Write-Host "***************************************************"
-    Write-Host "*Push Completed for AzureIaC4VDCTemplateDeployment*"
+    Write-Host "*Push Completed for IAC4DCATemplateDeployment*"
     Write-Host "***************************************************"
 
     $managedsubscriptions = $null

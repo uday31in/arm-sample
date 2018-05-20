@@ -53,44 +53,44 @@ Write-Host "mgmtSubscriptionPath: $mgmtSubscriptionPath"
 if($MgmtandSubscriptions)
 {
 
-    Write-Host "AzureIaC4VDCMgmtandSubscriptions : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCMgmtandSubscriptions -path "$path\MgmtGroup" -pathtoManangementGroup $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary -workspaceId:$omsWorkspaceId
+    Write-Host "IAC4DCAMgmtandSubscriptions : $falgDeleteIfNecessary"
+    Ensure-IAC4DCAMgmtandSubscriptions -path "$path\MgmtGroup" -pathtoManangementGroup $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary -workspaceId:$omsWorkspaceId
 }
 
     
 if($RoleDefinition)
 {
 
-    Write-Host "AzureIaC4VDCRoleDefintion : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCRoleDefinition  -path $pathtoManangementGroup  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
+    Write-Host "IAC4DCARoleDefintion : $falgDeleteIfNecessary"
+    Ensure-IAC4DCARoleDefinition  -path $pathtoManangementGroup  -deleteifNecessary:$falgDeleteIfNecessary -mgmtSubscriptionID:$mgmtSubscriptionID -mgmtSubscriptionPath:$mgmtSubscriptionPath
 }
 if($RoleAssignment)
 {
 
 
-    Write-Host "AzureIaC4VDCRoleAssignment : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCRoleAssignment  -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
+    Write-Host "IAC4DCARoleAssignment : $falgDeleteIfNecessary"
+    Ensure-IAC4DCARoleAssignment  -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
 }
 
     
 if($PolicyDefinition)
 {
 
-    Write-Host "AzureIaC4VDCPolicyDefinitions : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCPolicyDefinitions -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
+    Write-Host "IAC4DCAPolicyDefinitions : $falgDeleteIfNecessary"
+    Ensure-IAC4DCAPolicyDefinitions -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
 }
 if($PolicyAssignment)
 {
-    Write-Host "AzureIaC4VDCPolicyAssignments : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCPolicyAssignments -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
+    Write-Host "IAC4DCAPolicyAssignments : $falgDeleteIfNecessary"
+    Ensure-IAC4DCAPolicyAssignments -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
 
 }
 
     
 if($TemplateDeployment)
 {
-    Write-Host "AzureIaC4VDCTemplateDeployment : $falgDeleteIfNecessary"
-    Ensure-AzureIaC4VDCTemplateDeployment -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
+    Write-Host "IAC4DCATemplateDeployment : $falgDeleteIfNecessary"
+    Ensure-IAC4DCATemplateDeployment -path $pathtoManangementGroup -deleteifNecessary:$falgDeleteIfNecessary
 
     
 
