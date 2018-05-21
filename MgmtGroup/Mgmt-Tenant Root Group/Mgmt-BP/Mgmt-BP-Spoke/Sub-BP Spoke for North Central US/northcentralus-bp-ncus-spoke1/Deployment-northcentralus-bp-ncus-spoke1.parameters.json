@@ -25,7 +25,7 @@
           "routes": [
             {
               "name": "CNFW",
-              "addressPrefix": "0.0.0.0/0",
+              "addressPrefix": "100.200.10.0/24",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "10.12.1.4"
             }            
