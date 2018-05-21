@@ -28,6 +28,12 @@
               "addressPrefix": "10.200.10.0/24",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "10.12.1.4"
+            },
+            {
+              "name": "Route-to-Spoke1-AppSubnet",
+              "addressPrefix": "10.12.2.0/25",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "10.12.0.4"
             }            
           ]
         }
