@@ -1,0 +1,32 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "bpncusspk2vm1"
+    },
+    "adminUsername": {
+      "value": "bpadmin"
+    },    
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/bb81881b-d6a7-4590-b14e-bb3c575e42c5/resourceGroups/bp-ncus-kv/providers/Microsoft.KeyVault/vaults/bp-ncus-mgmtkv"
+        },
+        "secretName": "bppassword"
+      }
+    },
+    "vnetName": {
+      "value": "bp-ncus-spoke2-vnet"
+    },    
+    "subnetName": {
+      "value": "appsubnet"
+    },
+    "vnetResourceGroup": {
+      "value": "bp-ncus-spoke2"
+    },
+    "vnetSubscriptionId": {
+      "value": "e1d0d528-f223-4023-9c75-dfb31a2c7ade"
+    }      
+  }
+}
